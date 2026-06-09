@@ -1,12 +1,12 @@
 # LVA-Zusammenfassungen
 
-Sammlung meiner und [aldinapolis](https://github.com/ataldinapoli) Lernmaterialien verschiedenster LVAs
+Sammlung meiner und [Gregors](https://github.com/ataldinapoli) Lernmaterialien verschiedenster LVAs
 
 # 📁 Fächer
 
 ## [WS24](https://1drv.ms/o/c/1665f7f9d82b40c0/EgB861mOYxlLsFi-DPzkdkMBlMKRbD3oXta2Xbe2q61zuw?e=iLSHcs) - ADM, GDS EP1
-
-- Zusammenfassungen für Fächer aus dem Wintersemester 2024 findest du in diesem [OneNote Notizbuch](https://1drv.ms/o/c/1665f7f9d82b40c0/EgB861mOYxlLsFi-DPzkdkMBlMKRbD3oXta2Xbe2q61zuw?e=iLSHcs) von mir und [aldinapoli](https://github.com/ataldinapoli).
+- Zusammenfassung für ADM auch als [Obsidian Version](ADM) vorhanden!
+- Zusammenfassungen für restliche Fächer aus dem Wintersemester 2024 und die originale ADM Zusammenfassung findest du in diesem [OneNote Notizbuch](https://1drv.ms/o/c/1665f7f9d82b40c0/EgB861mOYxlLsFi-DPzkdkMBlMKRbD3oXta2Xbe2q61zuw?e=iLSHcs) von mir und [Gregor](https://github.com/ataldinapoli).
 
 
 ---
@@ -19,7 +19,7 @@ Sammlung meiner und [aldinapolis](https://github.com/ataldinapoli) Lernmateriali
 
 ### [ANA](ANA) - Analysis 1
 
-- Umfangreiche Formelsammlung für 1. und 2. Test von [aldinapoli](https://discord.com/users/575710766787985435).
+- Umfangreiche Formelsammlung für 1. und 2. Test von [Gregor](https://discord.com/users/575710766787985435).
 
 ### [DBS](dbs) – Datenbanksysteme
 
@@ -88,6 +88,6 @@ Sammlung meiner und [aldinapolis](https://github.com/ataldinapoli) Lernmateriali
 
 ## 🙋 Feedback
 
-Discord: [@xmozz](https://discord.com/users/409696362280517632), [@aldinapoli](https://discord.com/users/575710766787985435)
+Discord: [@xmozz](https://discord.com/users/409696362280517632), [@Gregor](https://discord.com/users/575710766787985435)
 
 
