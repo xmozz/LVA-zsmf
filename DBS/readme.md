@@ -13,6 +13,7 @@ Für den SQL Test gibt es eine umfangreiche Ausarbeitung der Slides die dafür r
 - Ausarbeitung von den SQL-Test relevanten Slides.
 - Ausarbeitung von den Endtest relevanten Slides.
 - Lösungen der TUWEL-Quizes
+- "Musterlösung" des Übungsteils 2025S
 
 ## 📄 Format
 
