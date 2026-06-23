@@ -67,6 +67,7 @@ Sammlung meiner und [Gregors](https://github.com/ataldinapoli) Lernmaterialien v
 
 ### [IntroAI](IntroAI) - Einführung in Artificial Intelligence
 - Zusammenfassung für Prüfung
+- Alttest Lösungen
 
 ### [IntroSec](IntroSec) - Einführung in Security 
 - Zusammenfassung für beide Tests
