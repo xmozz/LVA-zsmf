@@ -80,6 +80,12 @@ Sammlung meiner und [Gregors](https://github.com/ataldinapoli) Lernmaterialien v
 - Common Prüfungsfragen
 
 
+## WS26
+
+### [IntroCryptography](IntroCryptography) - Einführung in die Cryptographie
+- Zusammenfassung von Midtermstoff
+- Musterlösung von Altprüfungen
+
 
 
 ## 📄 Format
