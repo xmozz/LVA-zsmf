@@ -95,6 +95,6 @@ Sammlung [Gregor's](https://github.com/ataldinapoli), [Luka's](https://github.co
 
 ## 🙋 Feedback
 
-Discord: [@xmozz](https://discord.com/users/409696362280517632), [@Gregor](https://discord.com/users/575710766787985435)
+Discord: [@xmozz](https://discord.com/users/409696362280517632), [@Gregor](https://discord.com/users/575710766787985435), [@Luka](https://discord.com/users/627465945522241555)
 
 
