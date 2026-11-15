@@ -1,6 +1,6 @@
 # LVA-Zusammenfassungen
 
-Sammlung meiner und [Gregors](https://github.com/ataldinapoli) Lernmaterialien verschiedenster LVAs
+Sammlung [Gregor's](https://github.com/ataldinapoli), [Luka's](https://github.com/luka-ivanovic) und meiner Lernmaterialien verschiedenster LVAs
 
 # 📁 Fächer
 
