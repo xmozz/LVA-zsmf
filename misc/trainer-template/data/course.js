@@ -1,0 +1,376 @@
+/* ============================================================================
+ * COURSE CONFIGURATION — the only file that describes a particular course.
+ *
+ * A future agent replaces the values below when building a trainer for a new
+ * course. The app code contains no course names, units, topics, dates or
+ * exam-format assumptions of its own.
+ *
+ * Everything here is plain data:
+ *   id        unique, stable, lowercase; also names the localStorage key
+ *   title     brand shown in the top bar
+ *   exam      name, local date (YYYY-MM-DD or null) and the dashboard summary
+ *   units     ordered teaching units (lectures, weeks, chapters, ...)
+ *   topics    the taxonomy used by filters, the dashboard and the blueprint
+ *   origins   where items come from (slides, old exam, ...)
+ *   blueprint the mock exam imitates the real exam; sections are data
+ *   ui        every student-facing interface string
+ *
+ * `lecture` on an item is the id of one of the units below. Despite the
+ * historical field name it may be a number or a short string.
+ * ========================================================================== */
+window.COURSE = {
+  id: 'demo-course',
+  lang: 'en',
+  title: 'Demo',
+  subtitle: 'Trainer',
+  courseName: 'The Lantern Library (demonstration course)',
+
+  exam: {
+    name: 'Demo exam',
+    date: '2027-01-15',            // local date, YYYY-MM-DD; null = no countdown
+    summary: '14 points · 45 minutes · three true/false statements, one definition and two short problems.'
+  },
+
+  units: [
+    { id: 1, label: 'U1', title: 'Catalogues and shelves' },
+    { id: 2, label: 'U2', title: 'Borrowing rules' },
+    { id: 3, label: 'U3', title: 'Inventory counts' }
+  ],
+
+  topics: [
+    { id: 'catalogues', label: 'Catalogues' },
+    { id: 'borrowing', label: 'Borrowing' },
+    { id: 'inventory', label: 'Inventory' }
+  ],
+
+  origins: [
+    { id: 'slides', label: 'Slides' },
+    { id: 'exam', label: 'Old exam' },
+    { id: 'sample', label: 'Sample exam' },
+    { id: 'exercise', label: 'Exercise sheet' },
+    { id: 'variant', label: 'Variant' }
+  ],
+
+  /* The mock exam is assembled from these sections, in this order.
+   *
+   * type        item type used by the section
+   * count       exact number of items, or
+   * pointsTarget/pointsMin/pointsMax/countTarget/countMax for problem sections
+   * scoring     how the section is scored:
+   *               {kind:'plusminus', plus, minus, blank, floor}
+   *               {kind:'peritem', points}         (one point value per correct item)
+   *               {kind:'proportional'}            (item.points x right blanks / blanks)
+   *               {kind:'rubric'}                  (sum of rubric points)
+   * filters     optional item restrictions: topics, units, origins, difficulty,
+   *             points:[min,max], mock:true
+   * spread      'topic' or 'unit' to draw evenly across the taxonomy
+   * instructions  shown above the section on the exam paper
+   */
+  blueprint: {
+    title: 'Mock exam',
+    minutes: 45,
+    intro: 'Same shape as the real exam: true/false statements with +1 / −1 / 0, one definition with gaps, then two short problems. Answers and the timer survive a reload; hints and solutions stay hidden until you hand in.',
+    sections: [
+      {
+        id: 'tf', label: 'Q1', type: 'tf', count: 3, spread: 'topic',
+        scoring: { kind: 'plusminus', plus: 1, minus: 1, blank: 0, floor: 0 },
+        instructions: 'Decide for each statement whether it is true or false. Correct answers give +1, incorrect −1, blank 0. The total of this question is at least 0.'
+      },
+      {
+        id: 'def', label: 'Q2', type: 'gap', count: 1,
+        filters: { points: [3, 3] },
+        scoring: { kind: 'proportional' },
+        instructions: 'Fill in every blank of the definition.'
+      },
+      {
+        id: 'problems', label: 'Q3', type: 'problem',
+        pointsTarget: 8, pointsMin: 6, pointsMax: 10, countTarget: 2, countMax: 2,
+        filters: { mock: true },
+        scoring: { kind: 'rubric' },
+        instructions: 'Write a complete answer for every part. You grade yourself with the rubric after handing in.'
+      }
+    ]
+  },
+
+  /* Interface strings. Translate this table for a course taught in another
+   * language; every student-facing string in the app comes from here.
+   * Placeholders in braces are filled by the app. Values may contain HTML. */
+  ui: {
+    nav_dashboard: 'Dashboard',
+    nav_learn: 'Learn',
+    nav_tf: 'True/False',
+    nav_mc: 'Quiz',
+    nav_gap: 'Definitions',
+    nav_problems: 'Problems',
+    nav_mock: 'Mock exam',
+    settings: 'Settings',
+    nav_modes: 'Modes',
+    loading: 'Loading content…',
+    theme_title: 'Theme: auto / light / dark',
+    theme_auto: 'Auto',
+    theme_light: 'Light',
+    theme_dark: 'Dark',
+    dismiss: 'Dismiss',
+
+    countdown_days: '{n} days to the {exam}',
+    countdown_one_day: '{exam} tomorrow',
+    countdown_today: '{exam} today',
+    countdown_over: '{exam} is over',
+
+    filter_unit: 'Unit',
+    filter_topic: 'Topic',
+    filter_origin: 'Origin',
+    filter_difficulty: 'Difficulty',
+    filter_status: 'Status',
+    filter_all: 'All',
+    filter_unseen: 'Unseen only',
+    filter_mistakes: 'Mistakes only',
+    filter_length: 'Length',
+    diff_1: '1 · recall',
+    diff_2: '2 · application',
+    diff_3: '3 · transfer',
+
+    type_note: 'Notes',
+    type_card: 'Flashcards',
+    type_tf: 'True/False',
+    type_mc: 'Quiz',
+    type_gap: 'Definitions',
+    type_problem: 'Problems',
+
+    noun_tf_one: 'Statement',
+    noun_tf_many: 'statements',
+    noun_mc_one: 'Question',
+    noun_mc_many: 'questions',
+    noun_item_one: 'Item',
+    noun_item_many: 'items',
+
+    status_new: 'New',
+    status_attempted: 'Attempted',
+    status_solved: 'Solved',
+
+    unit_label: 'Unit {n}',
+    source_line: 'Source: {source}',
+
+    dash_resume_mock: 'Resume {exam}',
+    dash_drill_mistakes: 'Drill my mistakes',
+    dash_random_tf: 'Random true/false',
+    dash_quiz: 'Random quiz',
+    dash_one_definition: 'One definition',
+    dash_flashcards: 'Flashcards',
+    dash_start_mock: 'Start {exam}',
+    dash_progress: 'Progress',
+    dash_progress_note: 'Bars: light = seen, dark = mastered (two correct answers in a row; notes: read; problems: at least 80 % self-graded).',
+    dash_weakest: 'Weakest topics',
+    dash_weak_empty: 'Answer a few questions first; topics with at least three answers are ranked here.',
+    dash_by_topic: 'By topic',
+    dash_by_unit: 'By unit',
+    dash_mock_history: 'Mock results',
+    dash_no_mocks: 'No mock exams yet.',
+    dash_seen: '{n} seen',
+    dash_none: 'No content is loaded. Add the course data files listed in <code>data/manifest.js</code>, or open the page with <code>?sample=1</code> to see the demo items.',
+
+    table_date: 'Date',
+    table_score: 'Score',
+    table_percent: '%',
+    table_breakdown: 'Breakdown',
+    table_time_used: 'Time used',
+    table_definition: 'Definition',
+    table_source: 'Source',
+    table_points: 'Pts',
+    table_best: 'Best',
+    table_problem: 'Problem',
+    table_topic: 'Topic',
+    table_status: 'Status',
+    table_file: 'File',
+    table_items: 'Items',
+    table_question: 'Question',
+
+    learn_notes: 'Notes',
+    learn_cards: 'Flashcards',
+    learn_contents: 'Contents',
+    learn_contents_unit: 'Contents · Unit {n}',
+    learn_no_notes: 'No notes for this unit yet.',
+    learn_mark_read: 'Mark as read',
+    learn_read_undo: 'Read ✓ (undo)',
+    learn_sections_read: '{read} of {total} sections read',
+    learn_prev_unit: '← Unit {n}',
+    learn_next_unit: 'Unit {n} →',
+    cards_title: 'Flashcards',
+    cards_help: 'Space flips the card; then K knew it, D didn’t know. Cards you did not know come back a few cards later.',
+    cards_start: 'Start',
+    cards_flip: 'Show answer',
+    cards_knew: 'Knew it',
+    cards_didnt: 'Didn’t know',
+    cards_end: 'End session',
+    cards_counter: 'Card {i} / {n}',
+    cards_tally: 'Knew {knew} · Didn’t {didnt}',
+    cards_done: 'Session done',
+    cards_done_text: 'Knew <strong>{knew}</strong> of {total} cards on first sight.',
+    new_session: 'New session',
+    back_dashboard: 'Dashboard',
+    start: 'Start',
+    match_one: '{n} {noun} matches',
+    match_many: '{n} {noun} match',
+
+    drill_title_tf: 'True / False',
+    drill_title_mc: 'Quiz',
+    drill_title_mistakes: 'Drill my mistakes',
+    drill_intro_tf: 'Exam style: +1 for a correct answer, −1 for a wrong one, 0 for skipping; the session total never goes below 0.',
+    drill_intro_mc: 'Multiple choice: exactly one option is correct.',
+    drill_intro_mistakes: 'Statements and quiz questions you answered wrongly and have not yet answered correctly twice in a row.',
+    drill_counter: '{noun} {i} / {n}',
+    drill_score: 'Score <strong>{score}</strong> <span class="dim small">(+{right} −{wrong})</span>',
+    drill_correct_of: 'Correct <strong>{right}</strong> / {n}',
+    drill_no_mistakes: 'No open mistakes right now. Items leave this list after two correct answers in a row.',
+    drill_true: 'True',
+    drill_false: 'False',
+    drill_skip: 'Skip',
+    drill_next: 'Next',
+    drill_finish: 'Finish',
+    drill_end: 'End',
+    drill_correct: 'Correct',
+    drill_incorrect: 'Incorrect',
+    drill_skipped: 'Skipped',
+    drill_statement_is: 'The statement is <strong>{answer}</strong>.',
+    drill_statement_is_you: 'The statement is <strong>{answer}</strong>; you answered {given}.',
+    drill_correct_option: 'Correct answer: <strong>{n}</strong>',
+    drill_explanation_source: 'Source: {source}',
+    drill_summary: 'Session summary',
+    drill_tf_summary: 'Exam score <strong>{score}</strong> / {n} <span class="dim">({right} correct, {wrong} incorrect, {blank} blank; +1 / −1 / 0, total at least 0)</span>',
+    drill_mc_summary: '<strong>{right}</strong> of {n} correct <span class="dim">({wrong} incorrect, {skipped} skipped)</span>',
+    drill_redo_wrong: 'Redo the {n} I got wrong',
+    drill_your_answer: 'Your answer',
+    drill_correct_answer: 'Correct',
+    blank: 'blank',
+
+    gap_title: 'Definitions',
+    gap_intro: 'Fill in the blanks of a formal definition, then reveal and mark each blank yourself. Score = points × right / blanks.',
+    gap_all: 'All definitions',
+    gap_none: 'No definitions match.',
+    gap_reveal_one: 'Reveal blank {n}',
+    gap_reveal_all: 'Reveal all',
+    gap_one_by_one: 'Reveal one blank at a time',
+    gap_not_found: 'Definition “{id}” was not found.',
+    gap_mark_right: 'Right',
+    gap_mark_wrong: 'Wrong',
+    gap_attempt: 'Your attempt',
+    gap_answer: 'Answer',
+    gap_mark: 'Mark',
+    gap_marked: 'Marked {marked} / {total} · Score <strong>{score}</strong> / {points}',
+    gap_mark_all: 'Mark every blank as right or wrong to continue.',
+    gap_summary: 'Session summary',
+    gap_summary_points: '<strong>{score}</strong> / {max} points',
+    gap_blanks: '{right} / {total} blanks',
+    gap_back: 'Back to definitions',
+    gap_blank_aria: 'Blank {n}',
+
+    problems_title: 'Problems',
+    problems_intro: 'Open exam-style problems. Write your answer, use hints one at a time, then compare with the model solution and grade yourself with the rubric. A problem counts as solved at 80 % of its points or more.',
+    problems_none: 'No problems match.',
+    problems_all: '← All problems',
+    problem_previous: 'Previous',
+    problem_next: 'Next',
+    problem_not_found: 'Problem “{id}” was not found.',
+    problem_self_graded: 'Self-graded <strong>{score}</strong> / {total}',
+    problem_your_answer: 'Your answer',
+    problem_answer_ph: 'Write your solution here (saved automatically)',
+    problem_hint: 'Hint {n}',
+    problem_show_hint: 'Show hint {n} of {total}',
+    problem_show_solution: 'Show model solution',
+    problem_model_solution: 'Model solution',
+    problem_grade: 'Grade yourself',
+    problem_part_score: 'Part score <strong>{score}</strong> / {points}',
+    problem_reset: 'Reset this problem',
+    problem_reset_confirm: 'Clear your answers, hints, solution views and grading for this problem?',
+    problem_points: '{n} point',
+    problem_points_plural: '{n} points',
+    problem_mock_tag: 'mock',
+    problem_difficulty: 'd{n}',
+
+    mock_title: 'Mock exam',
+    mock_duration: 'Duration (minutes)',
+    mock_start: 'Start {exam}',
+    mock_prev_results: 'Previous results',
+    mock_minutes: '{points} points · {minutes} min',
+    mock_hand_in: 'Hand in',
+    mock_review: 'Review',
+    mock_review_hint: 'Grade your open answers with the rubrics',
+    mock_save_result: 'Save result',
+    mock_confirm_handin: 'Hand in now?{blank} You cannot change your answers afterwards.',
+    mock_confirm_blank: ' {n} true/false statement(s) are blank.',
+    mock_time_up: 'Time was up; the paper was handed in automatically.',
+    mock_no_answer: '(no answer)',
+    mock_question: 'Question {n}',
+    mock_clear: 'Clear',
+    mock_graded_auto: '{right} correct, {wrong} incorrect, {blank} blank (graded automatically).',
+    mock_unmarked: 'Marked {marked} of {total} blanks; unmarked blanks count as wrong.',
+    mock_unmarked_confirm: 'Some blanks of the definition are not marked; they count as wrong. Save the result anyway?',
+    mock_result: 'Mock result',
+    mock_result_score: '<strong>{score}</strong> / {total} points <span class="dim">({pct}%)</span>',
+    mock_time_used: 'Time used: {used} of {total} minutes. Graded problems are also stored under Problems.',
+    mock_start_another: 'Start another mock',
+    mock_all_results: 'All results',
+    mock_used_note: 'Problems already used in earlier mocks are avoided when possible.',
+    mock_section_missing: 'Not enough items are available for {label} ({type}); the section is left out.',
+    mock_section_short: 'Only {have} of the {want} requested {type} items are available for {label}.',
+    mock_section_points: 'No combination of available {type} items reaches the point range {min}–{max} for {label}.',
+    mock_section_fallback: 'No problem is marked mock: true; all problems are used for {label}.',
+    mock_no_sections: 'The course configuration defines no mock sections.',
+    mock_discard_confirm: 'Discard the running mock exam without saving a result?',
+    mock_points_short: '{n} P',
+
+    settings_title: 'Settings &amp; data',
+    settings_theme: 'Theme',
+    settings_follow_system: 'Follow system',
+    settings_progress: 'Progress',
+    settings_storage: 'Stored in this browser under <code>localStorage["{key}"]</code>. Export it to keep a backup or move to another browser.',
+    settings_export: 'Export progress (JSON)',
+    settings_import: 'Import progress…',
+    settings_discard_mock: 'Discard running mock',
+    settings_reset: 'Reset progress',
+    settings_import_confirm: 'Replace your current progress with the imported file?',
+    settings_imported: 'Progress imported.',
+    settings_import_failed: 'Import failed: {message}',
+    settings_reset_confirm: 'Reset ALL progress (answers, notes read, problems, mock results)? This cannot be undone. Consider exporting first.',
+    settings_reset_done: 'Progress reset.',
+    settings_content: 'Content',
+    settings_items_loaded: '<strong>{n}</strong> items loaded: {breakdown}.',
+    settings_maths: 'Maths renderer: {renderer}.',
+    settings_unavailable: '<strong>unavailable</strong> (raw LaTeX shown)',
+    settings_selftest: 'Full content validation: open <a href="selftest.html">selftest.html</a>.',
+    settings_skipped: 'Skipped items',
+    settings_duplicates: 'Duplicate ids (later copies ignored)',
+
+    notice_katex: '<strong>Maths renderer unavailable.</strong> KaTeX could not be loaded (offline?). Formulas are shown as raw LaTeX.',
+    notice_storage: '<strong>Progress cannot be saved.</strong> The browser blocks localStorage for this page; progress is lost on reload.',
+    notice_files: '<strong>Some content files could not be used:</strong>',
+    notice_file_missing: 'not found',
+    notice_file_empty: 'loaded but added no items',
+    notice_file_error: 'error while loading{detail}{items}',
+    notice_file_error_detail: ': {message}',
+    notice_file_error_items: ' ({n} items added anyway)',
+    notice_items_skipped: '{n} invalid item(s) skipped',
+    notice_duplicates: '{n} duplicate id(s) ignored',
+    notice_details: 'Details under <a href="#/settings">Settings</a>.',
+    notice_sample: 'Sample content is loaded {why}',
+    notice_sample_alongside: 'alongside the real content (<code>?sample=1</code>).',
+    notice_sample_empty: 'because no real content was found.',
+    notice_manifest: '<code>data/manifest.js</code> could not be loaded; no content files were requested.',
+
+    no_match: 'Nothing matches.',
+    not_found: 'Not found.',
+
+    demo_badge: 'Demo content',
+    demo_notice: 'This is demonstration content for the empty template, not course material.',
+    day: 'day',
+    days: 'days',
+    render_error: 'Could not display {label}',
+    this_item: 'this item',
+    view_failed: 'This view failed to load',
+    gap_default_title: 'Definition',
+    rubric_default: 'Complete and correct answer',
+    topic_other: 'Other',
+    origin_other: 'Other',
+    no_view_for_type: 'No practice view is registered for item type “{type}”.'
+  }
+};
