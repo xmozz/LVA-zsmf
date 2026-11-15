@@ -84,7 +84,7 @@ Sammlung [Gregor's](https://github.com/ataldinapoli), [Luka's](https://github.co
 
 ### [IntroCryptography](IntroCryptography) - Einführung in die Cryptographie
 - Zusammenfassung von Midtermstoff
-- Musterlösung von Altprüfungen
+- Online Trainer
 
 
 

@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IntroCrypto Trainer</title>
+<meta name="color-scheme" content="light dark">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css" crossorigin="anonymous">
+<link rel="stylesheet" href="styles.css">
+<script>
+  /* apply the saved theme before first paint */
+  try {
+    var s = JSON.parse(localStorage.getItem('introcrypto-trainer') || 'null');
+    var t = s && s.settings && s.settings.theme;
+    if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+  } catch (e) {}
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js" crossorigin="anonymous"></script>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="#/dashboard">IntroCrypto <span>Trainer</span></a>
+    <nav id="nav" class="nav" aria-label="Modes"></nav>
+    <div class="topbar-right">
+      <span id="countdown" class="countdown"></span>
+      <button id="theme-btn" class="btn btn-sm btn-ghost" title="Theme: auto / light / dark">Auto</button>
+      <a href="#/settings" class="btn btn-sm btn-ghost" title="Settings, export, reset">Settings</a>
+    </div>
+  </div>
+</header>
+<div id="notices" class="notices"></div>
+<main id="view" class="view"><p class="loading">Loading content…</p></main>
+
+<script src="js/render.js"></script>
+<script src="js/bank.js"></script>
+<script src="js/store.js"></script>
+<script src="js/loader.js"></script>
+<script src="js/core.js"></script>
+<script src="js/view-dashboard.js"></script>
+<script src="js/view-learn.js"></script>
+<script src="js/view-drill.js"></script>
+<script src="js/view-gap.js"></script>
+<script src="js/view-problems.js"></script>
+<script src="js/view-mock.js"></script>
+<script src="js/view-settings.js"></script>
+<script src="data/manifest.js" onerror="window.CRYPTO_MANIFEST_MISSING = true"></script>
+<script>
+  TL.load({}, function (report) {
+    if (window.CRYPTO_MANIFEST_MISSING) report.failed.unshift({ name: 'manifest.js', status: 'missing', items: 0, errors: [] });
+    TA.boot(report);
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trainer Self-test</title>
+<meta name="color-scheme" content="light dark">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css" crossorigin="anonymous">
+<link rel="stylesheet" href="styles.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js" crossorigin="anonymous"></script>
+<style>
+  .st { max-width: 1200px; margin: 0 auto; padding: 20px 16px 60px; }
+  .st table { font-size: .88rem; }
+  .st td, .st th { padding: 4px 8px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+  .st td.n, .st th.n { text-align: right; font-variant-numeric: tabular-nums; }
+  .st .ok { color: var(--good); font-weight: 700; }
+  .st .fail { color: var(--bad); font-weight: 700; }
+  .st .zero { color: var(--text-2); opacity: .5; }
+  .st code { word-break: break-all; }
+  .st .msg { font-family: var(--mono); font-size: .82rem; word-break: break-word; }
+  .st section { margin-bottom: 24px; }
+  .st .sum { font-size: 1.1rem; }
+</style>
+</head>
+<body>
+<div class="st">
+  <h1>Content self-test</h1>
+  <p class="dim small">Loads <code>data/manifest.js</code> and every listed file (plus continuation files <code>X-b.js</code>, <code>X-c.js</code>, …), validates every item against
+    <code>CONTENT_SPEC.md</code> and renders every text field with KaTeX (<code>throwOnError: true</code>). Add <code>?sample=1</code> to include <code>data/_sample.js</code>.
+    Result object: <code>window.SELFTEST_RESULT</code>.</p>
+  <div id="out"><p>Running…</p></div>
+</div>
+<script src="js/render.js"></script>
+<script src="js/bank.js"></script>
+<script src="js/loader.js"></script>
+<script src="data/manifest.js" onerror="window.CRYPTO_MANIFEST_MISSING = true"></script>
+<script>
+(function () {
+  'use strict';
+  var esc = TR.esc;
+  var PREFIX = {
+    'slides-1-2': ['l1-', 'l2-'], 'slides-3-4': ['l3-', 'l4-'], 'slides-5-6': ['l5-', 'l6-'], 'slides-7': ['l7-', 'mix-'],
+    'exams': ['ex-'], 'exercises': ['es-'], '_sample': ['smp-', 'mix-smp-']
+  };
+  function baseName(f) { return String(f || '').replace(/\.js$/, '').replace(/-[b-z]$/, ''); }
+
+  var sample = /[?&]sample=1\b/.test(location.search) ? 'force' : 'never';
+
+  TL.load({ sample: sample }, function (report) {
+    var errors = [], warnings = [];
+    function E(it, field, msg) { errors.push({ id: it ? it.id : null, file: it ? it.file : null, field: field || '', message: msg }); }
+    function W(it, field, msg) { warnings.push({ id: it ? it.id : null, file: it ? it.file : null, field: field || '', message: msg }); }
+
+    if (window.CRYPTO_MANIFEST_MISSING) E(null, 'manifest', 'data/manifest.js could not be loaded; default file list used');
+    report.files.forEach(function (f) {
+      if (f.status === 'missing') E({ id: '(file)', file: f.name }, '', 'file not found');
+      else if (f.status === 'error') E({ id: '(file)', file: f.name }, '', 'script error while loading: ' + f.errors.join('; ') + ' (' + f.items + ' items added)');
+      else if (f.status === 'empty') W({ id: '(file)', file: f.name }, '', 'file loaded but added no items');
+    });
+    var hasKatex = TR.hasKatex();
+    if (!hasKatex) E(null, 'katex', 'KaTeX did not load (offline?) — maths could not be validated');
+
+    var raw = Array.isArray(window.CRYPTO_BANK) ? window.CRYPTO_BANK : [];
+    var seen = {};
+    var valid = [];
+    var counts = { total: 0, byType: {}, typeLecture: {}, typeTopic: {}, typeOrigin: {} };
+    function inc(tbl, a, b) { tbl[a] = tbl[a] || {}; tbl[a][b] = (tbl[a][b] || 0) + 1; }
+
+    raw.forEach(function (r0, idx) {
+      var ref = { id: (r0 && r0.id) || ('#' + idx), file: r0 && r0.__file };
+      var res;
+      try { res = TB.validateItem(r0); } catch (e) { E(ref, '', 'validator crashed: ' + e.message); return; }
+      res.fatal.forEach(function (m) { E(ref, '', m + ' [item skipped by the app]'); });
+      res.errors.forEach(function (m) { E(ref, '', m); });
+      res.warnings.forEach(function (m) { W(ref, '', m); });
+      if (r0 && typeof r0.id === 'string') {
+        if (seen[r0.id]) E(ref, 'id', 'duplicate id (also in ' + seen[r0.id] + ')');
+        else seen[r0.id] = r0.__file || '?';
+        var pre = PREFIX[baseName(r0.__file)];
+        if (pre && !pre.some(function (p) { return r0.id.indexOf(p) === 0; })) W(ref, 'id', 'id does not start with the file prefix ' + pre.join(' / '));
+        var lm = /^l([1-7])-/.exec(r0.id);
+        if (lm && r0.lecture !== +lm[1]) W(ref, 'lecture', 'id says lecture ' + lm[1] + ' but lecture is ' + JSON.stringify(r0.lecture));
+      }
+      var it = res.item;
+      if (!it) return;
+      valid.push(it);
+      counts.total++;
+      counts.byType[it.type] = (counts.byType[it.type] || 0) + 1;
+      inc(counts.typeLecture, it.type, it.lecture);
+      inc(counts.typeTopic, it.type, TB.TOPIC_MAP[it.topic] ? it.topic : 'other');
+      inc(counts.typeOrigin, it.type, it.origin);
+
+      // render every text field strictly
+      TB.textFields(it).forEach(function (f) {
+        var errs = [], warns = [];
+        var opts = { strict: true, errors: errs, warnings: warns };
+        try {
+          if (f.kind === 'gap') TR.renderGapText(f.value, opts, function (i, html) { return html; });
+          else if (f.kind === 'inline') TR.renderInline(f.value, opts);
+          else TR.renderText(f.value, opts);
+        } catch (e) { errs.push({ tex: '', message: 'renderer crashed: ' + e.message }); }
+        errs.forEach(function (x) { E(ref, f.field, 'KaTeX: ' + x.message); });
+        warns.forEach(function (x) { W(ref, f.field, x); });
+        // unbalanced bold markers outside maths
+        var plain = TR.stripMath(f.value);
+        if (((plain.match(/\*\*/g) || []).length) % 2) W(ref, f.field, 'odd number of ** markers');
+      });
+    });
+
+    // exam-structure checks
+    var mockProbs = valid.filter(function (it) { return it.type === 'problem' && it.mock === true; });
+    var gap5 = valid.filter(function (it) { return it.type === 'gap' && it.points === 5; }).length;
+    var tfN = counts.byType.tf || 0;
+    if (tfN < 10) W(null, 'mock', 'fewer than 10 tf items (' + tfN + ') — mock Q1 will be short');
+    if (!gap5) W(null, 'mock', 'no gap item with points: 5');
+    var sums = { 0: true };
+    mockProbs.forEach(function (p) { Object.keys(sums).map(Number).forEach(function (s) { if (s + p.total <= 40) sums[s + p.total] = true; }); });
+    var reach = Object.keys(sums).map(Number).filter(function (s) { return s >= 13 && s <= 17; });
+    if (!reach.length) W(null, 'mock', 'no combination of mock problems totals 13–17 points (' + mockProbs.length + ' mock problems)');
+
+    var ok = errors.length === 0;
+    window.SELFTEST_RESULT = {
+      done: true, ok: ok, counts: counts, errors: errors, warnings: warnings,
+      files: report.files.map(function (f) { return { name: f.name, status: f.status, items: f.items, errors: f.errors }; }),
+      failedFiles: report.failed.map(function (f) { return f.name; }),
+      katex: hasKatex, mock: { problems: mockProbs.length, gap5: gap5, tf: tfN, reachable13to17: reach.length > 0 }
+    };
+
+    // ---------- output ----------
+    var h = '<section><p class="sum">' + (ok ? '<span class="ok">OK</span>' : '<span class="fail">FAIL</span>') + ' — ' + valid.length + ' valid of ' + raw.length + ' items, ' +
+      errors.length + ' error(s), ' + warnings.length + ' warning(s). KaTeX: ' + (hasKatex ? esc(katex.version || 'loaded') : '<span class="fail">not loaded</span>') + '.</p>' +
+      '<p class="small dim">Mock: ' + tfN + ' tf, ' + gap5 + ' five-point gaps, ' + mockProbs.length + ' mock problems (' + mockProbs.map(function (p) { return p.total; }).join('+') +
+      ' pts)' + (reach.length ? ', 13–17 reachable' : '') + '.</p></section>';
+
+    h += '<section><h2>Files</h2><table><thead><tr><th>File</th><th>Status</th><th class="n">Items</th><th>Errors</th></tr></thead><tbody>' +
+      report.files.map(function (f) {
+        return '<tr><td><code>' + esc(f.name) + '</code></td><td class="' + (f.status === 'ok' ? 'ok' : 'fail') + '">' + esc(f.status) + '</td><td class="n">' + f.items + '</td><td class="msg">' + esc(f.errors.join('; ')) + '</td></tr>';
+      }).join('') + '</tbody></table>' +
+      (report.failed.length ? '<p class="fail">Failed to load: ' + report.failed.map(function (f) { return esc(f.name) + ' (' + f.status + ')'; }).join(', ') + '</p>' : '') + '</section>';
+
+    function matrix(title, tbl, cols, label) {
+      var s = '<section><h2>' + title + '</h2><div class="table-wrap"><table><thead><tr><th>type</th>' + cols.map(function (c) { return '<th class="n">' + esc(label ? label(c) : c) + '</th>'; }).join('') +
+        '<th class="n">total</th></tr></thead><tbody>';
+      TB.TYPES.forEach(function (t) {
+        var row = tbl[t] || {}, tot = 0;
+        s += '<tr><th>' + t + '</th>' + cols.map(function (c) { var v = row[c] || 0; tot += v; return '<td class="n' + (v ? '' : ' zero') + '">' + v + '</td>'; }).join('') + '<td class="n"><strong>' + tot + '</strong></td></tr>';
+      });
+      return s + '</tbody></table></div></section>';
+    }
+    h += matrix('Type × lecture', counts.typeLecture, [1, 2, 3, 4, 5, 6, 7], function (c) { return 'L' + c; });
+    h += matrix('Type × topic', counts.typeTopic, TB.TOPICS.map(function (t) { return t.id; }).concat(['other']));
+    h += matrix('Type × origin', counts.typeOrigin, TB.ORIGINS.concat(['other']));
+
+    function list(title, arr, cls) {
+      if (!arr.length) return '<section><h2>' + title + '</h2><p class="dim">None.</p></section>';
+      return '<section><h2>' + title + ' (' + arr.length + ')</h2><div class="table-wrap"><table><thead><tr><th>Item</th><th>File</th><th>Field</th><th>Message</th></tr></thead><tbody>' +
+        arr.map(function (e) {
+          return '<tr><td><code>' + esc(e.id || '—') + '</code></td><td>' + esc(e.file || '') + '</td><td><code>' + esc(e.field) + '</code></td><td class="msg ' + cls + '">' + esc(e.message) + '</td></tr>';
+        }).join('') + '</tbody></table></div></section>';
+    }
+    h += list('Errors', errors, '');
+    h += list('Warnings', warnings, '');
+    document.getElementById('out').innerHTML = h;
+    document.title = (ok ? 'OK' : 'FAIL') + ' · Trainer Self-test';
+  });
+})();
+</script>
+</body>
+</html>

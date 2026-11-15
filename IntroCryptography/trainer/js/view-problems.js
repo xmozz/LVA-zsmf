@@ -1,0 +1,169 @@
+/* Problems: list and problem view with hints, model solution and rubric self-grading */
+(function (global) {
+  'use strict';
+  var TA = global.TA, esc = TA.esc;
+
+  function partScore(part, checks) {
+    var s = 0;
+    (part.rubric || []).forEach(function (rb, j) { if (checks && checks[j]) s += rb.points; });
+    return Math.min(s, part.points);
+  }
+
+  TA.problemScore = function (it) {
+    var ps = TS.state.problems[it.id];
+    var score = 0;
+    it.parts.forEach(function (p) { score += partScore(p, ps && ps.rubric[p.label]); });
+    return { score: score, total: it.total, graded: !!(ps && Object.keys(ps.rubric).length) };
+  };
+
+  TA.problemStatus = function (it) {
+    var ps = TS.state.problems[it.id];
+    if (!ps) return 'new';
+    var sc = TA.problemScore(it);
+    if (sc.graded && sc.score >= 0.8 * sc.total) return 'solved';
+    var touched = sc.graded || Object.keys(ps.sol).length || Object.keys(ps.hints).some(function (k) { return ps.hints[k] > 0; }) ||
+      Object.keys(ps.answers).some(function (k) { return (ps.answers[k] || '').trim(); });
+    return touched ? 'attempted' : 'new';
+  };
+
+  var STATUS_LABEL = { 'new': 'New', attempted: 'Attempted', solved: 'Solved' };
+  function chip(st) { return '<span class="chip chip-' + st + '">' + STATUS_LABEL[st] + '</span>'; }
+
+  var listFilt = { lecture: '', topic: '', origin: '', difficulty: '', status: '' };
+
+  function listView(el, r) {
+    var all = TA.ofType('problem');
+    ['lecture', 'topic', 'origin', 'difficulty', 'status'].forEach(function (k) { if (r.query[k] !== undefined) listFilt[k] = r.query[k]; });
+    function render() {
+      var list = TA.applyFilters(all, listFilt).filter(function (it) { return !listFilt.status || TA.problemStatus(it) === listFilt.status; });
+      list.sort(function (a, b) { return a.lecture - b.lecture || (a.source < b.source ? -1 : a.source > b.source ? 1 : 0); });
+      TA._problemList = list.map(function (it) { return it.id; });
+      var html = '<section class="card-plain setup"><h1>Problems</h1><p class="dim">Open exam-style problems. Write your answer, use hints one at a time, then compare with the model solution and grade yourself with the rubric. A problem counts as solved at ≥ 80 % of its points.</p>' +
+        TA.filterBar({ items: all, fields: ['lecture', 'topic', 'origin', 'difficulty', 'status'], values: listFilt }) + '</section>';
+      html += '<section class="card-plain">' + (list.length ? '<div class="table-wrap"><table class="list problems"><thead><tr><th>Problem</th><th>Source</th><th>Topic</th><th class="num">Pts</th><th>Status</th></tr></thead><tbody>' +
+        list.map(function (it) {
+          var st = TA.problemStatus(it), sc = TA.problemScore(it);
+          return '<tr><td><a href="#/problems/' + encodeURIComponent(it.id) + '">' + TA.safe(function () { return TA.mdi(it.title); }, it.id) + '</a>' +
+            (it.mock ? ' <span class="tag">mock</span>' : '') + ' <span class="dim small">L' + it.lecture + ' · d' + it.difficulty + '</span></td><td class="small">' + esc(it.source) + '</td><td class="small">' +
+            esc(TA.topicLabel(it.topic)) + '</td><td class="num">' + TA.fmtNum(it.total) + '</td><td>' + chip(st) + (sc.graded ? ' <span class="small dim">' + TA.fmtNum(sc.score) + '/' + TA.fmtNum(sc.total) + '</span>' : '') + '</td></tr>';
+        }).join('') + '</tbody></table></div>' : '<p class="dim">No problems match.</p>') + '</section>';
+      el.innerHTML = html;
+      el.querySelector('.filters').addEventListener('change', function () {
+        var v = TA.readFilters(el);
+        Object.keys(listFilt).forEach(function (k) { listFilt[k] = v[k] || ''; });
+        render();
+      });
+    }
+    render();
+    return {};
+  }
+
+  function problemView(el, it) {
+    var ps = TS.problem(it.id);
+    var ids = TA._problemList || TA.ofType('problem').map(function (p) { return p.id; });
+    var pos = ids.indexOf(it.id);
+
+    function header() {
+      var sc = TA.problemScore(it);
+      return '<span>' + chip(TA.problemStatus(it)) + '</span><span>Self-graded <strong>' + TA.fmtNum(sc.score) + '</strong> / ' + TA.fmtNum(sc.total) + '</span>';
+    }
+
+    var html = '<div class="crumbs"><a href="#/problems">← All problems</a><span class="crumb-nav">' +
+      (pos > 0 ? '<a href="#/problems/' + encodeURIComponent(ids[pos - 1]) + '">Previous</a>' : '') +
+      (pos >= 0 && pos < ids.length - 1 ? '<a href="#/problems/' + encodeURIComponent(ids[pos + 1]) + '">Next</a>' : '') + '</span></div>';
+    html += '<article class="problem">' + TA.safe(function () {
+      var h = '<header class="problem-head"><h1>' + TA.mdi(it.title) + '</h1>' + TA.metaLine(it, true) +
+        '<div class="problem-score" id="pscore">' + header() + '</div></header>';
+      if (it.statement) h += '<div class="prose statement">' + TA.md(it.statement) + '</div>';
+      it.parts.forEach(function (p, pi) {
+        h += '<section class="part" data-part="' + pi + '"><h2 class="part-head"><span>(' + esc(p.label) + ')</span><span class="pts">' + TA.fmtNum(p.points) + ' point' + (p.points === 1 ? '' : 's') + '</span></h2>' +
+          '<div class="prose">' + TA.safe(function () { return TA.md(p.prompt); }, it.id + ' prompt') + '</div>' +
+          '<label class="ta-label">Your answer<textarea class="answer" data-label="' + esc(p.label) + '" rows="6" placeholder="Write your solution here (saved automatically)">' +
+          esc(ps.answers[p.label] || '') + '</textarea></label>' +
+          '<div class="part-tools" data-pi="' + pi + '"></div></section>';
+      });
+      return h;
+    }, it.id) + '<div class="problem-foot"><button class="btn btn-ghost btn-sm" id="preset">Reset this problem</button></div></article>';
+    el.innerHTML = html;
+
+    function tools(pi) {
+      var p = it.parts[pi];
+      var box = TA.qs('.part-tools[data-pi="' + pi + '"]', el);
+      if (!box) return;
+      var nh = ps.hints[p.label] || 0;
+      var h = '';
+      if (p.hints.length) {
+        h += '<div class="hints">' + p.hints.slice(0, nh).map(function (x, j) {
+          return '<div class="hint"><span class="hint-label">Hint ' + (j + 1) + '</span><div class="prose">' + TA.safe(function () { return TA.md(x); }, 'hint') + '</div></div>';
+        }).join('') + '</div>';
+      }
+      h += '<div class="part-btns">';
+      if (nh < p.hints.length) h += '<button class="btn btn-sm" data-hint="' + pi + '">Show hint ' + (nh + 1) + ' of ' + p.hints.length + '</button>';
+      if (!ps.sol[p.label]) h += '<button class="btn btn-sm btn-primary" data-sol="' + pi + '">Show model solution</button>';
+      h += '</div>';
+      if (ps.sol[p.label]) {
+        var checks = ps.rubric[p.label] || [];
+        h += '<div class="solution"><div class="sol-label">Model solution</div><div class="prose">' + TA.safe(function () { return TA.md(p.solution); }, 'solution') + '</div></div>' +
+          '<fieldset class="rubric"><legend>Grade yourself</legend>' + p.rubric.map(function (rb, j) {
+            return '<label class="rubric-row"><input type="checkbox" data-rb="' + pi + ':' + j + '"' + (checks[j] ? ' checked' : '') + '><span class="rb-pts">' + TA.fmtNum(rb.points) +
+              '</span><span class="rb-text">' + TA.safe(function () { return TA.mdi(rb.text); }, 'rubric') + '</span></label>';
+          }).join('') + '<div class="rubric-total">Part score <strong>' + TA.fmtNum(partScore(p, checks)) + '</strong> / ' + TA.fmtNum(p.points) + '</div></fieldset>';
+      }
+      box.innerHTML = h;
+    }
+    it.parts.forEach(function (p, pi) { tools(pi); });
+
+    function touch() { ps.t = Date.now(); TS.save(); TA.qs('#pscore', el).innerHTML = header(); }
+
+    el.addEventListener('click', function (e) {
+      var b = e.target.closest('[data-hint],[data-sol]');
+      if (!b) return;
+      if (b.hasAttribute('data-hint')) {
+        var pi = +b.getAttribute('data-hint'), lab = it.parts[pi].label;
+        ps.hints[lab] = (ps.hints[lab] || 0) + 1;
+        touch(); tools(pi);
+      } else {
+        var pj = +b.getAttribute('data-sol');
+        ps.sol[it.parts[pj].label] = true;
+        touch(); tools(pj);
+      }
+    });
+    el.addEventListener('change', function (e) {
+      var c = e.target;
+      if (!c.hasAttribute || !c.hasAttribute('data-rb')) return;
+      var parts = c.getAttribute('data-rb').split(':');
+      var pi = +parts[0], j = +parts[1], lab = it.parts[pi].label;
+      var arr = ps.rubric[lab] || (ps.rubric[lab] = []);
+      arr[j] = c.checked;
+      touch();
+      var tot = c.closest('.rubric') && c.closest('.rubric').querySelector('.rubric-total strong');
+      if (tot) tot.textContent = TA.fmtNum(partScore(it.parts[pi], arr));
+    });
+    el.addEventListener('input', function (e) {
+      var t = e.target;
+      if (!t.classList || !t.classList.contains('answer')) return;
+      ps.answers[t.getAttribute('data-label')] = t.value;
+      ps.t = Date.now();
+      TS.saveSoon();
+    });
+    TA.qs('#preset', el).onclick = function () {
+      if (!global.confirm('Clear your answers, hints, solution views and grading for this problem?')) return;
+      delete TS.state.problems[it.id];
+      TS.save();
+      TA.route();
+    };
+    return {};
+  }
+
+  TA.views.problems = {
+    mount: function (el, r) {
+      if (r.args[0]) {
+        var it = TA.bank.byId[r.args[0]];
+        if (it && it.type === 'problem') return problemView(el, it);
+        el.innerHTML = '<section class="card-plain"><p>Problem “' + esc(r.args[0]) + '” was not found.</p><a class="btn" href="#/problems">All problems</a></section>';
+        return {};
+      }
+      return listView(el, r);
+    }
+  };
+})(window);
