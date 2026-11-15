@@ -68,9 +68,11 @@ Sammlung [Gregor's](https://github.com/ataldinapoli), [Luka's](https://github.co
 ### [IntroAI](IntroAI) - Einführung in Artificial Intelligence
 - Zusammenfassung für Prüfung
 - Alttest Lösungen
+- Trainer (True/False + Flashcards) zum selbst hosten: [IntroAI/trainer](IntroAI/trainer)
 
 ### [IntroSec](IntroSec) - Einführung in Security 
 - Zusammenfassung für beide Tests
+- Trainer (2. Test) zum selbst hosten: [IntroSec/trainer](IntroSec/trainer)
 
 ### [LaR](LaR) - Logic and Reasoning 
 - Zusammenfassung für Prüfung
@@ -84,7 +86,15 @@ Sammlung [Gregor's](https://github.com/ataldinapoli), [Luka's](https://github.co
 
 ### [IntroCryptography](IntroCryptography) - Einführung in die Cryptographie
 - Zusammenfassung von Midtermstoff
-- Online Trainer
+- Trainer zum selbst hosten: [IntroCryptography/trainer](IntroCryptography/trainer)
+
+## 🧰 Trainer selbst hosten
+
+Alle Trainer in diesem Repo sind eigenständige, statische Ordner (HTML + JS) – kein Build, kein Backend:
+
+1. Ordner `trainer` der jeweiligen LVA herunterladen/kopieren.
+2. `index.html` direkt im Browser öffnen **oder** den Ordner über einen beliebigen statischen Webspace ausliefern (z. B. `python -m http.server` im Ordner, GitHub Pages, Netlify, nginx).
+3. Der Fortschritt wird nur lokal im Browser (`localStorage`) gespeichert.
 
 
 

@@ -1,0 +1,1632 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IntroSec Trainer</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat&display=swap">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: "Montserrat", sans-serif;
+            background: #2a2b3d;
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 0;
+            margin: 0;
+            overflow: auto;              /* Erlaubt das Scrollen/Zoomen */
+            justify-content: flex-start; /* Setzt die vertikale Zentrierung zurück */
+            align-items: stretch;        /* Lässt die Boxen (wie die Topbar) die volle Breite nutzen */
+        }   
+
+        .top-bar {
+            position: relative;
+            width: 100%;
+            background: #222336;
+            padding: 20px;
+            box-sizing: border-box;
+            flex-shrink: 0;
+            z-index: 100;
+        }
+
+        #trainer {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            box-sizing: border-box;
+            flex: 1;
+        }
+
+        .top-bar-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            justify-content: flex-start;
+        }
+
+        .bottom-bar {
+            width: 100%;
+            background: #222336;
+            padding: 16px 20px;
+            box-sizing: border-box;
+            margin-top: auto;
+        }
+
+        .bottom-bar-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+
+
+        .narrow-section {
+            max-width: 760px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .card-overview-row {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .overview-column {
+            display: flex;
+            flex-direction: column;
+        }
+
+        @media (min-width: 900px) {
+            .top-bar-inner {
+                max-width: 1200px;
+                margin: 0 auto;
+                justify-content: flex-start;
+            }
+
+            .narrow-section {
+                max-width: none;
+            }
+
+            .card-overview-row {
+                flex-direction: row;
+                flex-wrap: wrap;
+                align-items: flex-start;
+            }
+
+            .question-card {
+                flex: 1 1 300px;
+                min-width: 0;
+            }
+
+            .overview-column {
+                flex: 1 1 300px;
+                min-width: 0;
+            }
+
+            .overview-column.collapsed {
+                flex: 1 1 100%;
+            }
+
+            .card-overview-row.overview-open {
+                align-items: stretch;
+            }
+
+            .overview-body {
+                font-size: 14px;
+            }
+
+            .overview-item {
+                font-size: 14px;
+            }
+
+            .overview-chapter-title {
+                font-size: 14px;
+            }
+        }
+
+        .mobile-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            justify-content: center;
+            margin-bottom: 12px;
+            
+     
+            padding-top: max(16px, env(safe-area-inset-top)); 
+            background:transparent;
+        }
+
+        .mobile-header h1 {
+            font-size: 18px;
+        }
+
+        .trainer-header h1 {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .back-link {
+            color: #aaa;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover {
+            color: white;
+        }
+
+        .trainer-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .mode-btn {
+            padding: 7px 14px;
+            font-size: 13px;
+            font-weight: 600;
+            font-family: inherit;
+            border: 1px solid #555;
+            border-radius: 6px;
+            background: transparent;
+            color: #ccc;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .mode-btn:hover {
+            border-color: #888;
+            color: white;
+        }
+
+        .mode-btn.active {
+            background: #007bff;
+            border-color: #007bff;
+            color: white;
+        }
+
+        .reset-btn {
+            padding: 7px 14px;
+            font-size: 13px;
+            font-weight: 600;
+            font-family: inherit;
+            border: 1px solid #d9534f;
+            border-radius: 6px;
+            background: transparent;
+            color: #d9534f;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-left: auto;
+        }
+
+        .reset-btn:hover {
+            background: #d9534f;
+            color: white;
+        }
+
+        .shuffle-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .shuffle-label {
+            font-size: 13px;
+            color: #aaa;
+            font-weight: 600;
+            margin-right: 4px;
+        }
+
+        .shuffle-btn {
+            padding: 5px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            font-family: inherit;
+            border: 1px solid #555;
+            border-radius: 5px;
+            background: transparent;
+            color: #888;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .shuffle-btn:hover {
+            border-color: #888;
+            color: white;
+        }
+
+        .shuffle-btn.active {
+            background: #007bff;
+            border-color: #007bff;
+            color: white;
+        }
+
+        .chapter-section {
+            margin-bottom: 16px;
+        }
+
+        .chapter-toggle-btn {
+            padding: 7px 14px;
+            font-size: 13px;
+            font-weight: 600;
+            font-family: inherit;
+            border: 1px solid #555;
+            border-radius: 6px;
+            background: transparent;
+            color: #ccc;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 10px;
+        }
+
+        .chapter-toggle-btn:hover {
+            border-color: #888;
+            color: white;
+        }
+
+        .chapter-list {
+            display: none;
+            flex-wrap: wrap;
+            gap: 6px;
+            padding: 12px;
+            background: #30314a;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+
+        .chapter-list.open {
+            display: flex;
+        }
+
+        .chap-btn {
+            padding: 5px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            font-family: inherit;
+            border: 1px solid #555;
+            border-radius: 5px;
+            background: transparent;
+            color: #aaa;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .chap-btn:hover {
+            border-color: #888;
+            color: white;
+        }
+
+        .chap-btn.active {
+            background: #007bff;
+            border-color: #007bff;
+            color: white;
+        }
+
+        .chap-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+            width: 100%;
+        }
+
+        .chap-actions button {
+            padding: 4px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            font-family: inherit;
+            border: 1px solid #555;
+            border-radius: 5px;
+            background: transparent;
+            color: #888;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .chap-actions button:hover {
+            border-color: #aaa;
+            color: white;
+        }
+
+        .trainer-stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            color: #aaa;
+            margin-bottom: 16px;
+            padding: 0 4px;
+        }
+
+        .settings-section {
+            margin-bottom: 32px;
+        }
+
+        .settings-toggle-btn {
+            width: 100%;
+            padding: 10px 16px;
+            background: #363750;
+            border: 1px solid #555;
+            border-radius: 8px;
+            color: #ddd;
+            font-size: 14px;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s;
+        }
+
+        .settings-toggle-btn:hover {
+            background: #40426a;
+            border-color: #888;
+            color: white;
+        }
+
+        .settings-content {
+            display: none;
+            padding: 12px;
+            background: #2a2b44;
+            border-radius: 0 0 8px 8px;
+            border: 1px solid #555;
+            border-top: none;
+        }
+
+        .settings-content.open {
+            display: block;
+        }
+
+        .question-card {
+            background: #40426a;
+            border-radius: 12px;
+            padding: 32px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+            border: 2px solid rgba(255,255,255,0.12);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .question-card.flashcard-mode {
+            cursor: pointer;
+        }
+
+        .question-card.flashcard-mode.flipped {
+            cursor: default;
+        }
+
+        .flashcard-area {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-top: auto;
+        }
+
+        .flashcard-flip-hint {
+            text-align: center;
+            font-size: 14px;
+            color: #888;
+            cursor: pointer;
+            padding: 20px;
+            border: 2px dashed #555;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .flashcard-flip-hint:hover {
+            border-color: #888;
+            color: #aaa;
+            background: rgba(255,255,255,0.03);
+        }
+
+        .flashcard-answer {
+            font-size: 16px;
+            line-height: 1.6;
+            color: #e0e0e0;
+            padding: 16px;
+            background: rgba(0,0,0,0.15);
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+
+        .knew-btn {
+            border-color: #28a745 !important;
+            color: #28a745 !important;
+        }
+
+        .knew-btn:hover:not(:disabled) {
+            background: rgba(40,167,69,0.1) !important;
+        }
+
+        .didntknow-btn {
+            border-color: #d9534f !important;
+            color: #d9534f !important;
+        }
+
+        .didntknow-btn:hover:not(:disabled) {
+            background: rgba(217,83,79,0.1) !important;
+        }
+
+        .question-card.flash-flashcard-correct {
+            border-color: #28a745 !important;
+            box-shadow: 0 0 30px rgba(40,167,69,0.4);
+            transition: all 0.3s;
+        }
+
+        .question-card.flash-flashcard-wrong {
+            border-color: #d9534f !important;
+            box-shadow: 0 0 30px rgba(217,83,79,0.4);
+            transition: all 0.3s;
+        }
+
+        .section-tag {
+            font-size: 12px;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            flex-shrink: 0;
+        }
+
+        .question-text {
+            font-size: 18px;
+            line-height: 1.6;
+            margin-bottom: 16px;
+            color: #f0f0f0;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .answer-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: auto;
+        }
+
+        .hotkey-hint {
+            font-size: 12px;
+            font-weight: 400;
+            opacity: 0.5;
+            margin-left: 4px;
+        }
+
+        .hotkey-info {
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+            margin-top: 10px;
+            letter-spacing: 0.5px;
+        }
+
+        .answer-btn {
+            flex: 1;
+            padding: 14px;
+            font-size: 16px;
+            font-weight: 700;
+            font-family: inherit;
+            border: 2px solid #555;
+            border-radius: 8px;
+            background: transparent;
+            color: white;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .answer-btn:hover:not(:disabled) {
+            border-color: #888;
+            background: rgba(255,255,255,0.05);
+        }
+
+        .answer-btn:disabled {
+            opacity: 0.4;
+            cursor: default;
+        }
+
+        .answer-btn.correct {
+            border-color: #28a745;
+            background: rgba(40,167,69,0.15);
+            color: #28a745;
+        }
+
+        .answer-btn.wrong {
+            border-color: #d9534f;
+            background: rgba(217,83,79,0.15);
+            color: #d9534f;
+        }
+
+        .answer-btn.reveal-correct {
+            border-color: #28a745;
+            background: rgba(40,167,69,0.15);
+            color: #28a745;
+        }
+
+        .feedback {
+            margin-top: 24px;
+            padding-top: 20px;
+            border-top: 1px solid #4a4b6a;
+            flex-shrink: 0;
+        }
+
+        .feedback-label {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .feedback-label.correct {
+            color: #28a745;
+        }
+
+        .feedback-label.wrong {
+            color: #d9534f;
+        }
+
+        .feedback-explanation {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #ccc;
+            margin-bottom: 16px;
+        }
+
+        .next-btn {
+            width: 100%;
+            padding: 16px 24px;
+            font-size: 15px;
+            font-weight: 600;
+            font-family: inherit;
+            border: none;
+            border-radius: 8px;
+            background: #007bff;
+            color: white;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .next-btn:hover {
+            background: #0056b3;
+        }
+
+        .summary {
+            text-align: center;
+            background: #363750;
+            border-radius: 12px;
+            padding: 48px 32px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+
+        .summary h2 {
+            font-size: 28px;
+            margin-bottom: 12px;
+        }
+
+        .summary p {
+            font-size: 16px;
+            color: #ccc;
+            margin-bottom: 24px;
+            line-height: 1.6;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #aaa;
+            background: #363750;
+            border-radius: 12px;
+            padding: 48px 32px;
+        }
+
+        .info-box {
+            background: #30314a;
+            border-radius: 8px;
+            padding: 14px 18px;
+            margin-bottom: 16px;
+            font-size: 13px;
+            line-height: 1.6;
+            color: #bbb;
+        }
+
+        .info-box strong {
+            color: #f0f0f0;
+        }
+
+        .info-box a {
+            color: #6ea8fe;
+            text-decoration: none;
+        }
+
+        .info-box a:hover {
+            text-decoration: underline;
+        }
+
+        .info-box + .info-box {
+            margin-top: 8px;
+        }
+
+        .overview-toggle {
+            padding: 7px 14px;
+            font-size: 13px;
+            font-weight: 600;
+            font-family: inherit;
+            border: 1px solid #555;
+            border-radius: 6px;
+            background: transparent;
+            color: #ccc;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .overview-toggle:hover {
+            border-color: #888;
+            color: white;
+        }
+
+        .overview-info-btn {
+            padding: 7px 14px;
+            font-size: 13px;
+            font-weight: 600;
+            font-family: inherit;
+            border: 1px solid #555;
+            border-radius: 6px;
+            background: transparent;
+            color: #ccc;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .overview-info-btn:hover {
+            border-color: #888;
+            color: white;
+        }
+
+        .overview-info {
+            background: #30314a;
+            border-radius: 8px;
+            padding: 14px 18px;
+            margin-bottom: 12px;
+            font-size: 13px;
+            line-height: 1.6;
+            color: #bbb;
+        }
+
+        .overview-info strong {
+            color: #f0f0f0;
+        }
+
+        .overview-info ul {
+            margin: 6px 0 0 18px;
+            padding: 0;
+        }
+
+        .overview-info li {
+            margin-bottom: 4px;
+        }
+
+        .overview-section {
+            background: #30314a;
+            border-radius: 8px;
+        }
+
+        .overview-box-header {
+            display: flex;
+            gap: 8px;
+            padding: 12px 16px;
+        }
+
+        .overview-body {
+            display: none;
+            padding: 0 16px 16px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .overview-section.open .overview-body {
+            display: block;
+        }
+
+        .overview-chapter {
+            margin-bottom: 12px;
+        }
+
+        .overview-chapter:last-child {
+            margin-bottom: 0;
+        }
+
+        .overview-chapter-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #aaa;
+            margin-bottom: 6px;
+            padding-bottom: 4px;
+            border-bottom: 1px solid #444;
+        }
+
+        .overview-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 5px 4px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.15s;
+            font-size: 14px;
+            color: #bbb;
+        }
+
+        .overview-item:hover {
+            background: rgba(255,255,255,0.05);
+        }
+
+        .overview-item .status-icon {
+            flex-shrink: 0;
+            width: 18px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .overview-item .status-icon.correct {
+            color: #28a745;
+        }
+
+        .overview-item .status-icon.wrong {
+            color: #d9534f;
+        }
+
+        .overview-item .status-icon.unanswered {
+            color: #555;
+        }
+
+        .overview-item .q-text {
+            flex: 1;
+            white-space: normal;
+            line-height: 1.4;
+        }
+
+        .overview-item .q-idx {
+            flex-shrink: 0;
+            color: #555;
+            font-size: 10px;
+            margin-right: 4px;
+        }
+
+        .overview-detail {
+            display: none;
+            padding: 8px 12px 8px 28px;
+            font-size: 12px;
+            color: #999;
+            line-height: 1.5;
+            border-left: 2px solid #444;
+            margin-left: 22px;
+            margin-top: 2px;
+            margin-bottom: 4px;
+        }
+
+        .overview-detail.open {
+            display: block;
+        }
+
+        .overview-detail .detail-answer {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .overview-detail .detail-answer.true {
+            color: #28a745;
+        }
+
+        .overview-detail .detail-answer.false {
+            color: #d9534f;
+        }
+
+        @media (max-width: 600px) {
+            #trainer {
+                    padding: 0 20px 20px 20px; /* Nimmt das Padding oben weg, damit der Header bündig abschließt */
+                }
+
+            body {
+                padding: 0;
+            }
+
+            .question-card {
+                padding: 20px;
+            }
+
+            .question-text {
+                font-size: 16px;
+            }
+
+            .answer-btn {
+                padding: 12px;
+                font-size: 14px;
+            }
+
+            .reset-btn {
+                margin-left: 0;
+                width: 100%;
+            }
+
+            .trainer-controls {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="top-bar">
+        <div class="top-bar-inner">
+            <h1 id="trainerTitle">IntroSec Trainer</h1>
+        </div>
+    </div>
+
+    <div id="trainer">
+
+        <div class="mobile-header">
+            <h1 id="trainerTitleMobile">IntroSec Trainer</h1>
+        </div>
+
+        <div id="infoBox" class="info-box narrow-section" style="display:none;"></div>
+
+        <div class="trainer-body">
+
+        <div class="settings-section narrow-section" style="display:none;">
+            <button id="settingsToggle" class="settings-toggle-btn">▾ Einstellungen</button>
+            <div id="settingsContent" class="settings-content">
+                <div class="chapter-section">
+                    <button id="chapterToggle" class="chapter-toggle-btn">▸ Kapitel auswählen</button>
+                    <div id="chapterList" class="chapter-list">
+                        <div id="chapterButtons" class="chap-buttons"></div>
+                        <div class="chap-actions">
+                            <button id="selectAllChaps">Alle auswählen</button>
+                            <button id="deselectAllChaps">Alle abwählen</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="shuffle-container">
+                    <span class="shuffle-label">Reihenfolge:</span>
+                    <button id="shuffleOrder" class="shuffle-btn active">Der Reihe nach</button>
+                    <button id="shuffleRandom" class="shuffle-btn">Zufällig</button>
+                </div>
+
+                <div class="shuffle-container">
+                    <span class="shuffle-label">Fragetyp:</span>
+                    <button id="typeAll" class="shuffle-btn active">Alle</button>
+                    <button id="typeTF" class="shuffle-btn">True/False</button>
+                    <button id="typeFlashcard" class="shuffle-btn">Flashcards</button>
+                </div>
+
+                <div class="trainer-controls">
+                    <span class="shuffle-label">Modus:</span>
+                    <button id="modeAll" class="mode-btn active">Alle Fragen</button>
+                    <button id="modeWrong" class="mode-btn">Nur falsch Beantwortete</button>
+                    <button id="resetBtn" class="reset-btn">Fortschritt zurücksetzen</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="trainer-stats narrow-section" style="display:none;">
+            <span>Richtig: <strong id="correctCount">0</strong> / <strong id="totalQuestions">0</strong></span>
+            <span id="progressDisplay">Frage 0 / 0</span>
+        </div>
+
+        <div id="cardOverviewRow" class="card-overview-row" style="margin-bottom: 24px;">
+        <div id="questionCard" class="question-card">
+            <div class="section-tag" id="sectionTag"></div>
+            <div class="question-text" id="questionText">Lade Fragen ...</div>
+            <div class="answer-buttons" id="answerButtons" style="display:none;">
+                <button id="trueBtn" class="answer-btn" disabled>True <span class="hotkey-hint">[T]</span></button>
+                <button id="falseBtn" class="answer-btn" disabled>False <span class="hotkey-hint">[F]</span></button>
+            </div>
+            <div class="flashcard-area" id="flashcardArea" style="display:none;">
+                <div class="flashcard-flip-hint" id="flashcardFlipHint">Klicke auf die Frage, um die Antwort zu sehen</div>
+                <div class="flashcard-answer" id="flashcardAnswer" style="display:none;"></div>
+                <div class="answer-buttons" id="flashcardButtons" style="display:none;">
+                    <button id="knewBtn" class="answer-btn knew-btn">Wusste ich <span class="hotkey-hint">[T]</span></button>
+                    <button id="didntKnowBtn" class="answer-btn didntknow-btn">Wusste ich nicht <span class="hotkey-hint">[F]</span></button>
+                </div>
+            </div>
+            <div id="feedback" class="feedback" style="display:none;">
+                <div class="feedback-label" id="feedbackLabel"></div>
+                <div class="feedback-explanation" id="feedbackText"></div>
+                <button id="nextBtn" class="next-btn">Weiter</button>
+                <div class="hotkey-info">Space = Weiter</div>
+            </div>
+        </div>
+
+        <div id="overviewColumn" class="overview-column" style="display:none;">
+        <div id="summary" class="summary" style="display:none;">
+            <h2>Fertig!</h2>
+            <p id="summaryText"></p>
+            <button id="retryBtn" class="reset-btn">Nur falsche Fragen wiederholen</button>
+        </div>
+            <div id="overviewSection" class="overview-section">
+                <div class="overview-box-header">
+                    <button id="overviewToggle" class="overview-toggle" style="margin:0;">▸ Fragenübersicht</button>
+                    <button id="overviewInfoBtn" class="overview-info-btn">Info</button>
+                </div>
+                <div id="overviewBody" class="overview-body"></div>
+            </div>
+            <div id="overviewInfo" class="overview-info" style="display:none;">
+                <strong>Info:</strong> In der Fragenübersicht kannst du:
+                <ul>
+                    <li>Auf das <strong>Status-Icon</strong> (✓ / ✗ / ○) klicken, um die Markierung manuell zu wechseln (ungesehen → richtig → falsch → ungesehen)</li>
+                    <li>Auf den <strong>Fragetext</strong> klicken, um die Antwort und Erklärung zu sehen</li>
+                </ul>
+            </div>
+        </div>
+        </div> <!-- cardOverviewRow -->
+
+        <div id="trainerContent" class="narrow-section" style="display:none;">
+        <div id="emptyState" class="empty-state" style="display:none;">
+            Keine Fragen ausgewählt. Bitte wähle mindestens ein Kapitel aus.
+        </div>
+
+        </div> <!-- trainerContent -->
+        </div> <!-- trainer-body -->
+    </div>
+
+    <div class="bottom-bar">
+        <div class="bottom-bar-inner">
+            <div class="info-box" style="margin:0; font-size:13px;">
+                <strong>KI-Disclaimer:</strong> Die Fragen wurden mithilfe von KI aus den Vorlesungsfolien ausgewertet. Falls dir Fehler auffallen, schreib mir bitte auf Discord: <a href="https://discord.com/users/409696362280517632">xmozz</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="data.js"></script>
+    <script>
+        const SUBJECTS = [
+            {
+                id: 'introSec',
+                title: 'IntroSec Trainer',
+                infoHtml: '<strong>Nur 2. Test (Kapitel 8-14):</strong> Dieser Trainer enthält KI-generierte Fragen zu den Konzepten der Kapitel 8 bis 14. Die Fragen ähneln denen des Probetests, sind aber nicht identisch.',
+                storageKey: 'introSec_trainer_correct',
+                wrongKey: 'introSec_trainer_wrong',
+                questions: window._trainerData_introSec
+            }
+        ];
+
+        let currentSubjectIdx = 0;
+        let currentQuestions = [];
+
+        function STORAGE_KEY() { return SUBJECTS[currentSubjectIdx].storageKey; }
+        function WRONG_KEY() { return SUBJECTS[currentSubjectIdx].wrongKey; }
+
+        let correctSet = new Set();
+        let wrongSet = new Set();
+        let currentMode = 'all';
+        let currentPos = 0;
+        let activeQuestions = [];
+        let selectedSections = new Set();
+        let chapterListOpen = false;
+
+        const questionCard = document.getElementById('questionCard');
+        const sectionTag = document.getElementById('sectionTag');
+        const questionText = document.getElementById('questionText');
+        const trueBtn = document.getElementById('trueBtn');
+        const falseBtn = document.getElementById('falseBtn');
+        const feedback = document.getElementById('feedback');
+        const feedbackLabel = document.getElementById('feedbackLabel');
+        const feedbackText = document.getElementById('feedbackText');
+        const nextBtn = document.getElementById('nextBtn');
+        const correctCount = document.getElementById('correctCount');
+        const totalQuestions = document.getElementById('totalQuestions');
+        const progressDisplay = document.getElementById('progressDisplay');
+        const modeAll = document.getElementById('modeAll');
+        const modeWrong = document.getElementById('modeWrong');
+        const resetBtn = document.getElementById('resetBtn');
+        const summary = document.getElementById('summary');
+        const summaryText = document.getElementById('summaryText');
+        const retryBtn = document.getElementById('retryBtn');
+        const emptyState = document.getElementById('emptyState');
+        const chapterToggle = document.getElementById('chapterToggle');
+        const chapterList = document.getElementById('chapterList');
+        const chapterButtons = document.getElementById('chapterButtons');
+        const selectAllChaps = document.getElementById('selectAllChaps');
+        const deselectAllChaps = document.getElementById('deselectAllChaps');
+        const overviewToggle = document.getElementById('overviewToggle');
+        const overviewColumn = document.getElementById('overviewColumn');
+        const overviewSection = document.getElementById('overviewSection');
+        const overviewBody = document.getElementById('overviewBody');
+        const shuffleOrderBtn = document.getElementById('shuffleOrder');
+        const shuffleRandomBtn = document.getElementById('shuffleRandom');
+        const flashcardArea = document.getElementById('flashcardArea');
+        const flashcardFlipHint = document.getElementById('flashcardFlipHint');
+        const flashcardAnswer = document.getElementById('flashcardAnswer');
+        const flashcardButtons = document.getElementById('flashcardButtons');
+        const knewBtn = document.getElementById('knewBtn');
+        const didntKnowBtn = document.getElementById('didntKnowBtn');
+        const typeAllBtn = document.getElementById('typeAll');
+        const typeTFBtn = document.getElementById('typeTF');
+        const typeFCBtn = document.getElementById('typeFlashcard');
+        let overviewOpen = false;
+        let shuffleMode = false;
+        let isFlipped = false;
+        let questionTypeFilter = 'all';
+
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        function getUniqueSections() {
+            const seen = new Set();
+            const sections = [];
+            for (const q of currentQuestions) {
+                if (!seen.has(q.section)) {
+                    seen.add(q.section);
+                    sections.push(q.section);
+                }
+            }
+            return sections;
+        }
+
+        function initSections() {
+            const sections = getUniqueSections();
+            for (const s of sections) {
+                selectedSections.add(s);
+            }
+            return sections;
+        }
+
+        function buildChapterButtons() {
+            const sections = getUniqueSections();
+            chapterButtons.innerHTML = '';
+            for (const s of sections) {
+                const btn = document.createElement('button');
+                btn.className = 'chap-btn active';
+                btn.textContent = s;
+                btn.dataset.section = s;
+                btn.addEventListener('click', () => toggleChapter(s, btn));
+                chapterButtons.appendChild(btn);
+            }
+        }
+
+        function toggleChapter(section, btn) {
+            if (selectedSections.has(section)) {
+                selectedSections.delete(section);
+                btn.classList.remove('active');
+            } else {
+                selectedSections.add(section);
+                btn.classList.add('active');
+            }
+            currentPos = 0;
+            rebuildActiveQuestions();
+            showCurrent();
+            updateStats();
+        }
+
+        function selectAllChapters() {
+            const sections = getUniqueSections();
+            for (const s of sections) selectedSections.add(s);
+            document.querySelectorAll('.chap-btn').forEach(b => b.classList.add('active'));
+            currentPos = 0;
+            rebuildActiveQuestions();
+            showCurrent();
+            updateStats();
+        }
+
+        function deselectAllChapters() {
+            selectedSections.clear();
+            document.querySelectorAll('.chap-btn').forEach(b => b.classList.remove('active'));
+            currentPos = 0;
+            rebuildActiveQuestions();
+            showCurrent();
+            updateStats();
+        }
+
+        function loadSets() {
+            try {
+                const stored = localStorage.getItem(STORAGE_KEY());
+                correctSet = stored ? new Set(JSON.parse(stored)) : new Set();
+                const wrongStored = localStorage.getItem(WRONG_KEY());
+                wrongSet = wrongStored ? new Set(JSON.parse(wrongStored)) : new Set();
+            } catch {
+                correctSet = new Set();
+                wrongSet = new Set();
+            }
+        }
+
+        function saveSets() {
+            try {
+                localStorage.setItem(STORAGE_KEY(), JSON.stringify([...correctSet]));
+                localStorage.setItem(WRONG_KEY(), JSON.stringify([...wrongSet]));
+            } catch (e) {
+                /* Speichern nicht möglich (z. B. file:// ohne localStorage) */
+            }
+        }
+
+        function setQuestionTypeFilter(type) {
+            questionTypeFilter = type;
+            typeAllBtn.classList.toggle('active', type === 'all');
+            typeTFBtn.classList.toggle('active', type === 'tf');
+            typeFCBtn.classList.toggle('active', type === 'flashcard');
+            currentPos = 0;
+            rebuildActiveQuestions();
+            showCurrent();
+            updateStats();
+        }
+
+        function rebuildActiveQuestions() {
+            let filtered = currentQuestions.map((q, i) => ({ ...q, originalIndex: i }));
+            filtered = filtered.filter(q => selectedSections.has(q.section));
+
+            if (questionTypeFilter !== 'all') {
+                filtered = filtered.filter(q => q.type === questionTypeFilter);
+            }
+
+            if (currentMode === 'wrong') {
+                filtered = filtered.filter(q => !correctSet.has(q.originalIndex));
+            }
+
+            if (shuffleMode) {
+                for (let i = filtered.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [filtered[i], filtered[j]] = [filtered[j], filtered[i]];
+                }
+            }
+
+            activeQuestions = filtered;
+        }
+
+        function updateStats() {
+            totalQuestions.textContent = currentQuestions.length;
+            correctCount.textContent = correctSet.size;
+
+            const total = activeQuestions.length;
+
+            if (total === 0) {
+                progressDisplay.textContent = 'Frage 0 / 0';
+            } else {
+                progressDisplay.textContent = `Frage ${currentPos + 1} / ${total}`;
+            }
+
+            if (overviewOpen) renderOverview();
+        }
+
+        function showCurrent() {
+            feedback.style.display = 'none';
+            flashcardArea.style.display = 'none';
+            flashcardFlipHint.style.display = 'none';
+            flashcardAnswer.style.display = 'none';
+            flashcardButtons.style.display = 'none';
+            isFlipped = false;
+            questionCard.classList.remove('flashcard-mode', 'flipped');
+            trueBtn.disabled = currentSubjectIdx === -1;
+            falseBtn.disabled = currentSubjectIdx === -1;
+            answerButtons.style.display = currentSubjectIdx === -1 ? 'none' : 'flex';
+            trueBtn.className = 'answer-btn';
+            falseBtn.className = 'answer-btn';
+
+            questionCard.style.display = 'none';
+            summary.style.display = 'none';
+            emptyState.style.display = 'none';
+
+            if (selectedSections.size === 0) {
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            if (activeQuestions.length === 0) {
+                showSummary();
+                return;
+            }
+
+            if (currentPos >= activeQuestions.length) {
+                showSummary();
+                return;
+            }
+
+            questionCard.style.display = 'flex';
+            const q = activeQuestions[currentPos];
+            sectionTag.textContent = q.section;
+            questionText.textContent = q.question;
+
+            if (q.type === 'flashcard') {
+                answerButtons.style.display = 'none';
+                flashcardArea.style.display = 'flex';
+                flashcardFlipHint.style.display = 'block';
+                questionCard.classList.add('flashcard-mode');
+                knewBtn.disabled = false;
+                didntKnowBtn.disabled = false;
+                knewBtn.className = 'answer-btn knew-btn';
+                didntKnowBtn.className = 'answer-btn didntknow-btn';
+            } else {
+                answerButtons.style.display = 'flex';
+                flashcardArea.style.display = 'none';
+            }
+
+            updateStats();
+        }
+
+        function showSummary() {
+            questionCard.style.display = 'none';
+            summary.style.display = 'block';
+            emptyState.style.display = 'none';
+            feedback.style.display = 'none';
+
+            const filtered = currentQuestions.map((q, i) => ({ ...q, originalIndex: i }))
+                .filter(q => selectedSections.has(q.section));
+            const typeFiltered = questionTypeFilter === 'all' ? filtered : filtered.filter(q => q.type === questionTypeFilter);
+            const total = typeFiltered.length;
+            const correct = typeFiltered.filter(q => correctSet.has(q.originalIndex)).length;
+            const wrong = total - correct;
+
+            if (currentMode === 'wrong' && correct === total) {
+                summaryText.textContent = 'Alle Fragen in den ausgewählten Kapiteln wurden richtig beantwortet!';
+                retryBtn.style.display = 'none';
+            } else if (currentMode === 'wrong') {
+                summaryText.textContent = `${correct} von ${total} Fragen richtig beantwortet (${wrong} falsch).`;
+                retryBtn.style.display = 'inline-block';
+                retryBtn.textContent = 'Falsche Fragen erneut wiederholen';
+            } else {
+                summaryText.textContent = `${correct} von ${total} Fragen richtig beantwortet (${wrong} falsch).`;
+                retryBtn.style.display = wrong > 0 ? 'inline-block' : 'none';
+                retryBtn.textContent = 'Nur falsche Fragen wiederholen';
+            }
+            updateStats();
+        }
+
+        function handleAnswer(selected) {
+            const q = activeQuestions[currentPos];
+
+            trueBtn.disabled = true;
+            falseBtn.disabled = true;
+
+            if (selected === q.answer) {
+                trueBtn.className = 'answer-btn' + (q.answer ? ' correct' : '');
+                falseBtn.className = 'answer-btn' + (!q.answer ? ' correct' : '');
+                feedbackLabel.className = 'feedback-label correct';
+feedbackLabel.textContent = 'Richtige Auswahl!';
+
+                correctSet.add(q.originalIndex);
+                wrongSet.delete(q.originalIndex);
+                saveSets();
+            } else {
+                const wrongBtn = selected ? trueBtn : falseBtn;
+                wrongBtn.className = 'answer-btn wrong';
+                const correctBtn = q.answer ? trueBtn : falseBtn;
+                correctBtn.className = 'answer-btn reveal-correct';
+                feedbackLabel.className = 'feedback-label wrong';
+feedbackLabel.textContent = 'Falsche Auswahl!';
+
+                wrongSet.add(q.originalIndex);
+                correctSet.delete(q.originalIndex);
+                saveSets();
+            }
+
+            if (q.explanation) {
+                feedbackText.textContent = q.explanation;
+            } else {
+                feedbackText.textContent = q.answer ? 'Die Antwort ist True.' : 'Die Antwort ist False.';
+            }
+            feedback.style.display = 'block';
+            updateStats();
+            if (overviewOpen) {
+                const target = overviewBody.querySelector('.overview-item[data-idx="' + q.originalIndex + '"]');
+                if (target) target.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+            }
+        }
+
+        function flipCard() {
+            if (isFlipped) return;
+            const q = activeQuestions[currentPos];
+            isFlipped = true;
+            questionCard.classList.add('flipped');
+            flashcardFlipHint.style.display = 'none';
+            flashcardAnswer.textContent = q.explanation;
+            flashcardAnswer.style.display = 'block';
+            flashcardButtons.style.display = 'flex';
+        }
+
+        function handleFlashcardAnswer(knew) {
+            const q = activeQuestions[currentPos];
+            knewBtn.disabled = true;
+            didntKnowBtn.disabled = true;
+
+            if (knew) {
+                correctSet.add(q.originalIndex);
+                wrongSet.delete(q.originalIndex);
+                questionCard.classList.add('flash-flashcard-correct');
+            } else {
+                wrongSet.add(q.originalIndex);
+                correctSet.delete(q.originalIndex);
+                questionCard.classList.add('flash-flashcard-wrong');
+            }
+            saveSets();
+            updateStats();
+            if (overviewOpen) {
+                const target = overviewBody.querySelector('.overview-item[data-idx="' + q.originalIndex + '"]');
+                if (target) target.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+            }
+            setTimeout(() => {
+                questionCard.classList.remove('flash-flashcard-correct', 'flash-flashcard-wrong');
+                nextQuestion();
+            }, 500);
+        }
+
+        function nextQuestion() {
+            currentPos++;
+            if (currentPos >= activeQuestions.length) {
+                showSummary();
+            } else {
+                showCurrent();
+            }
+        }
+
+        function switchMode(mode) {
+            currentMode = mode;
+            currentPos = 0;
+            modeAll.classList.toggle('active', mode === 'all');
+            modeWrong.classList.toggle('active', mode === 'wrong');
+            rebuildActiveQuestions();
+            showCurrent();
+            updateStats();
+        }
+
+        function resetProgress() {
+            correctSet.clear();
+            wrongSet.clear();
+            saveSets();
+            currentMode = 'all';
+            currentPos = 0;
+            modeAll.classList.add('active');
+            modeWrong.classList.remove('active');
+            rebuildActiveQuestions();
+            showCurrent();
+            updateStats();
+            if (overviewOpen) renderOverview();
+        }
+
+        function renderOverview() {
+            const sections = getUniqueSections().filter(s => selectedSections.has(s));
+            let html = '';
+            for (const section of sections) {
+                const questions = [];
+                for (let i = 0; i < currentQuestions.length; i++) {
+                    if (currentQuestions[i].section === section) {
+                        questions.push({ ...currentQuestions[i], idx: i });
+                    }
+                }
+                html += '<div class="overview-chapter">';
+                html += '<div class="overview-chapter-title">' + section + '</div>';
+                for (const q of questions) {
+                    let statusClass, icon;
+                    if (correctSet.has(q.idx)) {
+                        statusClass = 'correct';
+                        icon = '&#10003;';
+                    } else if (wrongSet.has(q.idx)) {
+                        statusClass = 'wrong';
+                        icon = '&#10007;';
+                    } else {
+                        statusClass = 'unanswered';
+                        icon = '&#9675;';
+                    }
+                    let ansClass, ansLabel;
+                    if (q.type === 'flashcard') {
+                        ansClass = '';
+                        ansLabel = 'Open Question';
+                    } else {
+                        ansClass = q.answer ? 'true' : 'false';
+                        ansLabel = q.answer ? 'True' : 'False';
+                    }
+                    html += '<div class="overview-item" data-idx="' + q.idx + '">';
+                    html += '<span class="status-icon ' + statusClass + '">' + icon + '</span>';
+                    html += '<span class="q-idx">#' + (q.idx + 1) + '</span>';
+                    html += '<span class="q-text">' + escapeHtml(q.question) + '</span>';
+                    html += '</div>';
+                    html += '<div class="overview-detail" data-idx="' + q.idx + '">';
+                    if (ansClass) {
+                        html += '<div class="detail-answer ' + ansClass + '">' + ansLabel + '</div>';
+                    }
+                    html += '<div>' + escapeHtml(q.explanation) + '</div>';
+                    html += '</div>';
+                }
+                html += '</div>';
+            }
+            overviewBody.innerHTML = html;
+        }
+
+        function toggleQuestionStatus(idx) {
+            if (correctSet.has(idx)) {
+                correctSet.delete(idx);
+                wrongSet.add(idx);
+            } else if (wrongSet.has(idx)) {
+                wrongSet.delete(idx);
+            } else {
+                correctSet.add(idx);
+            }
+            saveSets();
+            if (overviewOpen) renderOverview();
+            updateStats();
+        }
+
+        function loadSubjectData(idx) {
+            currentSubjectIdx = idx;
+            document.getElementById('trainer').classList.add('loaded');
+            const subject = SUBJECTS[idx];
+            document.getElementById('trainerTitle').textContent = subject.title;
+            document.getElementById('trainerTitleMobile').textContent = subject.title;
+            const infoBox = document.getElementById('infoBox');
+            infoBox.innerHTML = subject.infoHtml;
+            infoBox.style.display = 'block';
+            document.getElementById('trainerContent').style.display = 'block';
+            document.querySelector('.settings-section').style.display = 'block';
+            document.querySelector('.trainer-stats').style.display = 'flex';
+            overviewColumn.style.display = 'flex';
+            currentQuestions = subject.questions;
+            correctSet = new Set();
+            wrongSet = new Set();
+            selectedSections.clear();
+            currentMode = 'all';
+            currentPos = 0;
+            chapterListOpen = false;
+            shuffleMode = false;
+            questionTypeFilter = 'all';
+            overviewOpen = window.innerWidth >= 900;
+            modeAll.classList.add('active');
+            modeWrong.classList.remove('active');
+            shuffleOrderBtn.classList.add('active');
+            shuffleRandomBtn.classList.remove('active');
+            typeAllBtn.classList.add('active');
+            typeTFBtn.classList.remove('active');
+            typeFCBtn.classList.remove('active');
+            loadSets();
+            initSections();
+            buildChapterButtons();
+            rebuildActiveQuestions();
+            showCurrent();
+            updateStats();
+            if (overviewOpen) {
+                overviewSection.classList.add('open');
+                overviewColumn.classList.remove('collapsed');
+                document.querySelector('.card-overview-row').classList.add('overview-open');
+                overviewToggle.textContent = '▾ Fragenübersicht';
+                renderOverview();
+            } else {
+                overviewSection.classList.remove('open');
+                overviewColumn.classList.add('collapsed');
+                document.querySelector('.card-overview-row').classList.remove('overview-open');
+                overviewToggle.textContent = '▸ Fragenübersicht';
+            }
+        }
+
+        // Event listeners
+        trueBtn.addEventListener('click', () => handleAnswer(true));
+        falseBtn.addEventListener('click', () => handleAnswer(false));
+        knewBtn.addEventListener('click', () => handleFlashcardAnswer(true));
+        didntKnowBtn.addEventListener('click', () => handleFlashcardAnswer(false));
+        questionText.addEventListener('click', () => {
+            if (flashcardArea.style.display !== 'none' && !isFlipped) flipCard();
+        });
+        flashcardFlipHint.addEventListener('click', flipCard);
+        nextBtn.addEventListener('click', nextQuestion);
+
+        typeAllBtn.addEventListener('click', () => setQuestionTypeFilter('all'));
+        typeTFBtn.addEventListener('click', () => setQuestionTypeFilter('tf'));
+        typeFCBtn.addEventListener('click', () => setQuestionTypeFilter('flashcard'));
+        modeAll.addEventListener('click', () => switchMode('all'));
+        modeWrong.addEventListener('click', () => switchMode('wrong'));
+
+        shuffleOrderBtn.addEventListener('click', () => {
+            shuffleMode = false;
+            shuffleOrderBtn.classList.add('active');
+            shuffleRandomBtn.classList.remove('active');
+            currentPos = 0;
+            rebuildActiveQuestions();
+            showCurrent();
+            updateStats();
+        });
+
+        shuffleRandomBtn.addEventListener('click', () => {
+            shuffleMode = true;
+            shuffleRandomBtn.classList.add('active');
+            shuffleOrderBtn.classList.remove('active');
+            currentPos = 0;
+            rebuildActiveQuestions();
+            showCurrent();
+            updateStats();
+        });
+
+        resetBtn.addEventListener('click', () => {
+            if (confirm('Fortschritt wirklich zurücksetzen?')) {
+                resetProgress();
+            }
+        });
+
+        retryBtn.addEventListener('click', () => switchMode('wrong'));
+
+        document.getElementById('settingsToggle').addEventListener('click', () => {
+            const content = document.getElementById('settingsContent');
+            const isOpen = content.classList.toggle('open');
+            document.getElementById('settingsToggle').textContent = isOpen ? '▾ Einstellungen' : '▸ Einstellungen';
+        });
+
+        chapterToggle.addEventListener('click', () => {
+            chapterListOpen = !chapterListOpen;
+            chapterList.classList.toggle('open', chapterListOpen);
+            chapterToggle.textContent = chapterListOpen ? '▾ Kapitel auswählen' : '▸ Kapitel auswählen';
+        });
+
+        selectAllChaps.addEventListener('click', selectAllChapters);
+        deselectAllChaps.addEventListener('click', deselectAllChapters);
+
+        overviewToggle.addEventListener('click', () => {
+            overviewOpen = !overviewOpen;
+            overviewSection.classList.toggle('open', overviewOpen);
+            overviewColumn.classList.toggle('collapsed', !overviewOpen);
+            document.querySelector('.card-overview-row').classList.toggle('overview-open', overviewOpen);
+            overviewToggle.textContent = overviewOpen ? '▾ Fragenübersicht' : '▸ Fragenübersicht';
+            if (overviewOpen) renderOverview();
+        });
+
+        document.getElementById('overviewInfoBtn').addEventListener('click', () => {
+            const info = document.getElementById('overviewInfo');
+            info.style.display = info.style.display === 'none' ? 'block' : 'none';
+        });
+
+        overviewBody.addEventListener('click', (e) => {
+            const item = e.target.closest('.overview-item');
+            if (!item) return;
+            const idx = parseInt(item.dataset.idx);
+            if (e.target.closest('.status-icon')) {
+                toggleQuestionStatus(idx);
+            } else {
+                const detail = overviewSection.querySelector('.overview-detail[data-idx="' + idx + '"]');
+                if (detail) detail.classList.toggle('open');
+            }
+        });
+
+        // Hotkeys
+        document.addEventListener('keydown', (e) => {
+            if (e.repeat) return;
+            const inFlashcardMode = flashcardArea.style.display !== 'none' && flashcardArea.style.display !== '';
+            if (e.key === 't' || e.key === 'T') {
+                if (inFlashcardMode && isFlipped && !knewBtn.disabled) {
+                    knewBtn.click();
+                } else if (!trueBtn.disabled) {
+                    trueBtn.click();
+                }
+            } else if (e.key === 'f' || e.key === 'F') {
+                if (inFlashcardMode && isFlipped && !didntKnowBtn.disabled) {
+                    didntKnowBtn.click();
+                } else if (!falseBtn.disabled) {
+                    falseBtn.click();
+                }
+            } else if (e.key === ' ') {
+                e.preventDefault();
+                if (inFlashcardMode && !isFlipped) {
+                    flipCard();
+                } else if (feedback.style.display !== 'none' && feedback.style.display !== '') {
+                    nextBtn.click();
+                }
+            }
+        });
+
+        function updateHeader() {
+            const wide = window.innerWidth >= 900;
+            document.querySelector('.top-bar').style.display = wide ? 'block' : 'none';
+            document.querySelector('.mobile-header').style.display = wide ? 'none' : 'flex';
+        }
+        updateHeader();
+        window.addEventListener('resize', updateHeader);
+
+        // Init: der Trainer lädt automatisch
+        loadSubjectData(0);
+    </script>
+</body>
+</html>
+
