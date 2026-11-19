@@ -19,7 +19,8 @@ you change are `data/course.js`, `data/manifest.js`, the content files in
 If the subject needs an extension, use `EXTENDING.md` and keep the self-test in
 step.
 
-Everything you need is in this folder. Read these before writing anything:
+Everything you need is in this folder — and **only** this folder. Read these
+before writing anything:
 
 - `CONTENT_SPEC.md` — the contract between content files and the app. This is
   the mechanical reference; do not guess its rules.
@@ -33,6 +34,14 @@ Everything you need is in this folder. Read these before writing anything:
 - `js/types.js`, `js/bank.js`, `js/blueprint.js` — where item types are
   validated, scheduled and assembled into a mock exam.
 - `selftest.html` — the authoritative content check.
+
+**Source boundary.** The course sources are the files the user put under
+`materials/`. Nothing else is a source: not the trainer's app files, not files
+in a parent or sibling folder, not a PDF that happens to sit next to the
+trainer, not the user's home directory, not the conversation. Do not walk up
+the directory tree looking for “more material”. If a file you need is outside
+`materials/`, stop and ask the user for explicit permission before opening it.
+A file you were not given is not evidence, however relevant it looks.
 
 You may not be able to spawn subagents. That changes how you organise the
 work, not what the result must contain. You are allowed to use the shell, read
@@ -53,9 +62,18 @@ materials/exams/        old exams and sample exams
 materials/notes/        anything else: handouts, formula sheets, recordings
 ```
 
-or they may have dropped files in the root, in a zip-like folder, or in a
-single PDF. Tolerate deviations; do not move their files around without a
-reason. Write down what you found, what is readable and what is missing.
+or they may have dropped files in the root of `materials/`, in a zip-like
+folder, or in a single PDF. Tolerate deviations **inside `materials/`**; do not
+move their files around without a reason. If the material is somewhere else in
+the trainer folder, ask the user to move it into `materials/` rather than
+reading it in place. Write down what you found, what is readable and what is
+missing.
+
+If you notice a file outside `materials/` that looks like a summary, a
+transcript or lecture notes — for example a PDF in the parent folder — do not
+open it, do not cite it, and do not let its language or structure influence
+the trainer. If you have already opened it, discard what you took from it and
+say so in the final report.
 
 Work out these five things from the materials before you write an item:
 
@@ -71,6 +89,11 @@ Work out these five things from the materials before you write an item:
    better evidence than a prose description; a course handbook is a fallback.
 4. **Language.** The language of the slides and exams is the default for both
    content and interface. If the user asks for another language, follow them.
+   The language of the conversation is **not** evidence: a user may write in
+   German while the course, the slides and the exam are in English. Never infer
+   the course language from the chat, from a filename, or from a file outside
+   `materials/`. If the materials are mixed, the exam language wins for the
+   interface and for exam-style items; say which choice you made.
 5. **Level and style.** Are questions computational, proof-based, essay-like,
    code-reading, definition-recall? Match the real exam, not an idealised
    course.
@@ -315,8 +338,9 @@ sign inside code. Keep tables for comparisons, truth tables, rubrics and
 worked numeric examples.
 
 **Language.** Write content in the language of the materials unless the user
-asked otherwise, and keep the interface in the same language. Use the course's
-notation; do not translate variable names or standard symbols.
+explicitly asked otherwise, and keep the interface in the same language. The
+language of the chat is not an instruction to change the course language. Use
+the course's notation; do not translate variable names or standard symbols.
 
 ---
 
@@ -501,6 +525,13 @@ Do these checks by running the trainer, not by reading the code.
    does not, you have hard-coded something. Also search those files for the
    course name, unit titles and topic labels; they belong only in
    `data/course.js` and the content files.
+9. **Source-boundary audit.** List every file the content was built from. Each
+   one must be under `materials/`. Open the content and check that no item,
+   explanation, card or note depends on a file outside that folder. If you
+   used an outside file by mistake, remove its influence, rebuild the affected
+   items from `materials/`, and report what happened. This is a correctness
+   check, not a formality: a plausible trainer built from the wrong source is
+   worse than a thinner trainer built from the right one.
 
 If you add a new item type, also test its boundary cases, its empty/skip path,
 its reload path and its mock section. If you cannot run a browser, say exactly
@@ -515,8 +546,10 @@ Include:
 
 - what was built: units, item counts by type, the mock blueprint and its
   points/time, and the language;
-- what materials were used and what was left out, with reasons (out of scope,
-  unreadable, duplicate, uncertain);
+- what materials under `materials/` were used, and an explicit confirmation
+  that no file outside `materials/` influenced the content or the language;
+- what was left out, with reasons (out of scope, unreadable, duplicate,
+  uncertain);
 - what you verified and how (self-test result, modes exercised, mock completed,
   `file://` tested), and what you could not verify;
 - every assumption you made (exam date, scope boundary, format inference);

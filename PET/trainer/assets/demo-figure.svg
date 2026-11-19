@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="180" viewBox="0 0 480 180" role="img" aria-label="A bay with three shelves and a reserved aisle">
+  <rect x="0" y="0" width="480" height="180" fill="#f6f6f3"/>
+  <rect x="40" y="22" width="330" height="136" rx="4" fill="none" stroke="#5a5f66" stroke-width="2"/>
+  <rect x="52" y="34" width="306" height="30" rx="2" fill="#e5ecfa" stroke="#2c5bc7"/>
+  <rect x="52" y="72" width="306" height="30" rx="2" fill="#e5ecfa" stroke="#2c5bc7"/>
+  <rect x="52" y="110" width="306" height="30" rx="2" fill="#e5ecfa" stroke="#2c5bc7"/>
+  <text x="64" y="54" font-family="system-ui, sans-serif" font-size="13" fill="#1d1f22">shelf 1</text>
+  <text x="64" y="92" font-family="system-ui, sans-serif" font-size="13" fill="#1d1f22">shelf 2</text>
+  <text x="64" y="130" font-family="system-ui, sans-serif" font-size="13" fill="#1d1f22">shelf 3</text>
+  <rect x="370" y="22" width="26" height="136" fill="#f0f0ec" stroke="#8a5a00" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <text x="383" y="82" font-family="system-ui, sans-serif" font-size="11" fill="#8a5a00" transform="rotate(90 383 82)" text-anchor="middle">aisle</text>
+  <line x1="40" y1="168" x2="370" y2="168" stroke="#5a5f66" stroke-width="1"/>
+  <line x1="40" y1="164" x2="40" y2="172" stroke="#5a5f66" stroke-width="1"/>
+  <line x1="370" y1="164" x2="370" y2="172" stroke="#5a5f66" stroke-width="1"/>
+  <text x="205" y="178" font-family="system-ui, sans-serif" font-size="11" fill="#5a5f66" text-anchor="middle">W = 25 units</text>
+</svg>

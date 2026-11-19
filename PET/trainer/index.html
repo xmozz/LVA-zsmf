@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trainer</title>
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css" crossorigin="anonymous">
+<link rel="stylesheet" href="styles.css">
+<script src="data/course.js"></script>
+<script>
+  /* apply the saved theme before first paint; the key is derived from the course id */
+  try {
+    var KEY = 'trainer-' + ((window.COURSE && window.COURSE.id) || 'course');
+    var s = JSON.parse(localStorage.getItem(KEY) || 'null');
+    var t = s && s.settings && s.settings.theme;
+    if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+  } catch (e) {}
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js" crossorigin="anonymous"></script>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" id="brand" href="#/dashboard"></a>
+    <nav id="nav" class="nav"></nav>
+    <div class="topbar-right">
+      <span id="countdown" class="countdown"></span>
+      <button id="theme-btn" class="btn btn-sm btn-ghost"></button>
+      <a id="settings-btn" href="#/settings" class="btn btn-sm btn-ghost"></a>
+    </div>
+  </div>
+</header>
+<div id="notices" class="notices"></div>
+<main id="view" class="view"><p class="loading" id="loading"></p></main>
+
+<script src="js/render.js"></script>
+<script src="js/types.js"></script>
+<script src="js/bank.js"></script>
+<script src="js/blueprint.js"></script>
+<script src="js/store.js"></script>
+<script src="js/loader.js"></script>
+<script src="js/core.js"></script>
+<script src="js/view-dashboard.js"></script>
+<script src="js/view-learn.js"></script>
+<script src="js/view-drill.js"></script>
+<script src="js/view-gap.js"></script>
+<script src="js/view-problems.js"></script>
+<script src="js/view-mock.js"></script>
+<script src="js/view-settings.js"></script>
+<script src="data/manifest.js"></script>
+<script>
+  document.getElementById('loading').textContent = (window.COURSE && window.COURSE.ui && window.COURSE.ui.loading) || '';
+  TL.load({}, function (report) {
+    TA.boot(report);
+  });
+</script>
+</body>
+</html>
