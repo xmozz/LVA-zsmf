@@ -88,6 +88,10 @@ Sammlung [Gregor's](https://github.com/ataldinapoli), [Luka's](https://github.co
 - Zusammenfassung von Midtermstoff
 - Trainer zum selbst hosten: [IntroCryptography/trainer](IntroCryptography/trainer)
 
+
+### [PET](PET) - Privacy Enhancing Technologies
+- Zusammenfassung für  Midterm
+
 ## 🧰 Trainer selbst hosten
 
 Alle Trainer in diesem Repo sind eigenständige, statische Ordner (HTML + JS) – kein Build, kein Backend:
