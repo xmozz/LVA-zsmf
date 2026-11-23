@@ -2,7 +2,7 @@
  * COURSE CONFIGURATION — Privacy Enhancing Technologies (VU, TU Wien)
  *
  * Exam: Midterm, 30 November 2026, 09:00–11:00, Helmut Rauch Hörsaal (TPH).
- * Source: Lecture I, slide 16, and the two old midterms.
+ * Source: Lecture I, slide 16, and the old midterms and reexam.
  *
  * Scope: lectures I–VI (Introduction, Internet & Privacy in the Web,
  * Fingerprinting & Censorship, Cryptographic Preliminaries, Public-Key Crypto
@@ -53,6 +53,7 @@ window.COURSE = {
     { id: 'slides', label: 'Slides' },
     { id: 'exam-2024', label: 'Midterm 2024/25' },
     { id: 'exam-2025', label: 'Midterm 2025/26' },
+    { id: 'exam-2025-reexam', label: 'Midterm 2025/26 reexam' },
     { id: 'exercise', label: 'Exercise sheet' },
     { id: 'variant', label: 'Variant' }
   ],

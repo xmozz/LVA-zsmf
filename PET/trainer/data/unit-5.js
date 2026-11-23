@@ -253,6 +253,16 @@ ElGamal is CPA-secure under DDH, but not automatically CCA-secure: an attacker w
       source: "Variant of Lecture V, slide 35", difficulty: 2,
       front: R`Under which assumption is ElGamal CPA-secure?`,
       back: R`Under DDH. ElGamal encryption is exactly a DDH tuple with a masked message.` },
+    { id: "u5-card-elgamal-homomorphic", type: "card", lecture: 5, topic: "public-key", origin: "exam-2025-reexam",
+      source: "Midterm reexam 2025/26, Problem 3(a)", difficulty: 2,
+      front: R`Is ElGamal multiplicatively homomorphic?`,
+      back: R`Yes. For $c=(g^y, pk^y m)$ and $c'=(g^{y'}, pk^{y'}m')$, component-wise multiplication gives
+$$(g^{y+y'},\, pk^{y+y'} mm'),$$
+an encryption of $mm'$ with randomness $y+y'$. Similarly, $c^\alpha$ encrypts $m^\alpha$.` },
+    { id: "u5-card-elgamal-small-messages", type: "card", lecture: 5, topic: "public-key", origin: "exam-2025-reexam",
+      source: "Midterm reexam 2025/26, Problem 3(b)–(c)", difficulty: 2,
+      front: R`How can ElGamal encrypt a small integer $m \in \{0,\dots,\lambda^c\}$?`,
+      back: R`Encode $m$ as the group element $g^m$ and encrypt that. Decryption returns $g^m$; because the set is polynomially large, the receiver recovers $m$ by brute force in $O(\lambda^c)$. For all of $\mathbb{Z}_p$ this would require solving the discrete logarithm, which is infeasible.` },
 
     /* ---------------- true / false ---------------- */
     { id: "u5-tf-reduction", type: "tf", lecture: 5, topic: "public-key", origin: "slides",

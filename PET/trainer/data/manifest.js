@@ -7,5 +7,7 @@ window.TRAINER_DATA_FILES = [
   { file: 'unit-5.js', prefixes: ['u5-'] },
   { file: 'unit-6.js', prefixes: ['u6-'] },
   { file: 'exams.js', prefixes: ['ex-'] },
-  { file: 'exercises.js', prefixes: ['es-'] }
+  { file: 'reexam-2025.js', prefixes: ['ex-'] },
+  { file: 'exercises.js', prefixes: ['es-'] },
+  { file: 'exercises-ue2.js', prefixes: ['es-'] }
 ];

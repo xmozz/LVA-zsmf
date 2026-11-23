@@ -1,5 +1,6 @@
 /* Exercise sheet conversions that are not already covered in the unit files.
- * UE1 Q1–Q5 -> unit 2/3; UE2 Q1, Q3, Q4 -> unit 4/5.
+ * UE1 Q1–Q5 -> unit 2/3; UE2 Q1, Q3, Q4 -> unit 4/5; UE2 Q2.2–Q2.4 ->
+ * exercises-ue2.js; UE2 Q2.1 and Q5 -> this file.
  */
 (function () {
   const R = String.raw;

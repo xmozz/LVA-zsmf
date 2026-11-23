@@ -1,5 +1,6 @@
 /* Converted midterm questions — 2024/25 and 2025/26.
  * Official sample solutions were used and re-derived; sources are exact.
+ * The 2025/26 reexam is converted in reexam-2025.js.
  */
 (function () {
   const R = String.raw;
